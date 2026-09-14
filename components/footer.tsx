@@ -18,6 +18,9 @@ export function Footer() {
         </Link>
       </nav>
       <p className="mt-4 text-sm text-foreground/70">© Rooted — projet démo</p>
+      <p className="mt-1 text-xs text-foreground/60">
+        Projet démo — produits fictifs.
+      </p>
     </footer>
   );
 }
