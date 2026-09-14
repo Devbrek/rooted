@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { AddToCartButton } from "@/components/add-to-cart-button";
 
 export default async function ProductPage({ params }: PageProps<"/produits/[id]">) {
   const { id } = await params;
@@ -20,7 +21,9 @@ export default async function ProductPage({ params }: PageProps<"/produits/[id]"
       <h1>{product.name}</h1>
       <span>{product.price.toFixed(2)} €</span>
       <p>{product.description}</p>
-      <button type="button">Ajouter au panier</button>
+      <AddToCartButton
+        product={{ id: product.id, name: product.name, price: product.price }}
+      />
     </main>
   );
 }
