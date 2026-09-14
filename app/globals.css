@@ -12,6 +12,10 @@
   --color-accent: #c9b896;
   --color-secondary: #7a8b6f;
   --color-section: #f2f1ee;
+
+  /* Photo grand format de la fiche produit (photo d'ambiance, pas un carré
+     de catalogue). */
+  --aspect-product: 4 / 5;
 }
 
 /* Polices next/font (voir app/layout.tsx) exposées comme jetons Tailwind. */
