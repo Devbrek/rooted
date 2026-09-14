@@ -9,14 +9,24 @@ export function Header() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="flex items-center justify-between">
+    <header className="flex items-center justify-between border-b border-accent/30 bg-background px-6 py-4">
       <div className="flex items-center gap-4">
         <Link href="/">
           <Image src="/rooted.png" alt="Rooted" width={40} height={44} />
         </Link>
-        <Link href="/">Catalogue</Link>
+        <Link
+          href="/"
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Catalogue
+        </Link>
       </div>
-      <Link href="/panier">Panier ({itemCount})</Link>
+      <Link
+        href="/panier"
+        className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+      >
+        Panier ({itemCount})
+      </Link>
     </header>
   );
 }
