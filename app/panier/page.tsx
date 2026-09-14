@@ -70,7 +70,7 @@ export default function CartPage() {
             <p>Total : {total.toFixed(2)} €</p>
           </div>
 
-          <button type="button">Passer commande</button>
+          <Link href="/commande">Passer commande</Link>
         </>
       )}
     </main>
