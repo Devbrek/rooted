@@ -23,7 +23,7 @@ const body = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: "Rooted",
-  description: "Décoration d'ambiance nature apaisante.",
+  description: "Site Demo E-commerce - Décoration d'ambiance nature apaisante.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
