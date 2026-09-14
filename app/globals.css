@@ -1,2 +1,21 @@
 @import "tailwindcss";
 
+/*
+ * Direction artistique Rooted (chantier E-bis).
+ * Couleurs et polices déclarées ici comme jetons de thème Tailwind, pour que
+ * les composants les utilisent via des classes utilitaires standards
+ * (bg-accent, text-secondary, font-serif…) plutôt que des valeurs arbitraires.
+ */
+@theme {
+  --color-background: #fafaf8;
+  --color-foreground: #2a2a26;
+  --color-accent: #c9b896;
+  --color-secondary: #7a8b6f;
+  --color-section: #f2f1ee;
+}
+
+/* Polices next/font (voir app/layout.tsx) exposées comme jetons Tailwind. */
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-heading);
+}
