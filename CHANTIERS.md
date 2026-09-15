@@ -79,6 +79,26 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
+### U — Persistance du panier
+
+- Corrige le défaut 5 de `AUDIT-J.md` (panier perdu au retour depuis Stripe) et ajoute le plafond de 10 par produit côté panier (reporté de T).
+- Mécanisme : `localStorage`, clé versionnée `rooted-cart-v1`, sans dépendance ajoutée. Données stockées : `productId` et quantité uniquement, aucun prix ni donnée personnelle.
+- Relecture défensive : JSON invalide, forme inattendue, quantité non entière ou hors 1–10 → ligne ignorée, aucune erreur affichée ni plantage.
+- Plafond : au-delà de 10 unités d'un produit, bouton « + » désactivé et message « 10 maximum par produit ».
+- Le stockage n'est jamais écrit avant d'avoir été lu au chargement (pas d'écrasement par un panier vide).
+- `ClearCartOnMount` vide aussi le stockage, uniquement après paiement vérifié.
+- Critères d'acceptation (tests manuels par Ben sur `pnpm build` + `pnpm start`, stockage vérifié dans l'onglet Application des outils de développement ; curl ne prouve rien ici) :
+  - Ajout de produits → rechargement → panier et compteur du header identiques.
+  - Panier rempli → Stripe → annulation → panier intact. Idem après carte refusée et après bouton retour du navigateur.
+  - Paiement abouti → `/confirmation` → panier vide et clé `rooted-cart-v1` absente du stockage.
+  - Valeur corrompue saisie à la main dans le stockage → page chargée sans erreur, ligne invalide ignorée.
+  - Quantité 11 saisie à la main dans le stockage → ligne ignorée.
+  - Onzième unité d'un produit dans le panier → impossible, message affiché.
+  - Panier rempli, rechargement → stockage non remplacé par un panier vide.
+  - Desktop et mobile.
+  - Non-régression : contrôle positif de `/api/checkout` (`amount_total: 10500`) ; session non payée → `/confirmation` en 404, panier conservé.
+- Hors périmètre (signalé) : synchronisation entre onglets ; produit supprimé de la base mais présent dans le stockage (déjà rejeté par `/api/checkout` en 400) ; ajout depuis la fiche produit et toast (chantier V).
+
 ### V — Ajout au panier depuis la fiche produit
 
 - Sélecteur de quantité sur la fiche produit, ajout de plusieurs unités en un clic, sans passer par la page panier.
