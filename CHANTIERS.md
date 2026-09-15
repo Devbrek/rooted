@@ -91,6 +91,24 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Mise à jour de l'écran 2 de `WIREFRAME.md` incluse.
 - Critère d'acceptation : ajout de N unités (1 ≤ N ≤ 10) reflété dans le compteur du header et la page panier ; impossible de dépasser 10 unités cumulées pour un produit ; toast affiché à chaque ajout puis disparu ; testé manuellement en desktop et mobile.
 
+### W — Formulaire de livraison et de facturation validé
+
+- Dépend de I : la mention « Projet démo : saisissez des informations fictives, rien n'est conservé » doit être affichée au-dessus du formulaire de `/commande`.
+- Dépendance ajoutée, décidée explicitement : `zod`. Un seul schéma partagé entre le navigateur et le serveur. Version installée consignée dans le rapport du chantier.
+- Champs de livraison : prénom (obligatoire, 50 caractères max), nom (obligatoire, 50 max), email (obligatoire, format valide), adresse (obligatoire, 100 max), complément d'adresse (facultatif, 100 max), code postal (obligatoire, exactement 5 chiffres), ville (obligatoire, 50 max), pays affiché « France » non modifiable. Pas de téléphone.
+- Facturation : case « Adresse de facturation identique à la livraison », cochée par défaut. Décochée, elle affiche un second bloc (prénom, nom, adresse, complément, code postal, ville, pays France) soumis aux mêmes règles. Cochée, aucun champ de facturation n'est exigé ni validé.
+- Validation côté navigateur (affichage des erreurs sous chaque champ) et côté serveur dans `/api/checkout`, avant tout appel Stripe. Formulaire invalide : HTTP 400, corps `{"error": "Formulaire invalide.", "fields": {...}}` avec un message en français par champ en erreur.
+- Données jamais conservées : ni base de données, ni transmission à Stripe, ni écriture dans les logs. L'email est redemandé par Stripe (doublon assumé).
+- Mise à jour de l'écran 4 de `WIREFRAME.md` incluse.
+- Critères d'acceptation :
+  - curl : champ obligatoire vide, email invalide, code postal à 4 chiffres, champ dépassant sa longueur maximale, case décochée avec bloc de facturation vide → HTTP 400 avec le champ concerné dans `fields`, 0 session Stripe créée (comptage depuis un horodatage, contrôlé par un test positif qui fait passer le compteur à 1).
+  - curl : formulaire valide, case cochée → HTTP 200 ; formulaire valide, case décochée avec facturation valide → HTTP 200.
+  - Session Stripe créée : aucune des valeurs saisies n'apparaît dans l'objet session relu via l'API.
+  - Logs serveur : 0 occurrence d'une valeur témoin saisie dans le formulaire, avec contrôle de l'outil sur une ligne de log connue.
+  - Non-régression : tous les critères de T repassent.
+  - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
+- Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
+
 ## Fermés
 
 ### A — Définir le produit — fermé le 2026-09-15
