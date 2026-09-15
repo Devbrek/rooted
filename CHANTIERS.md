@@ -80,7 +80,7 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - `/confirmation` avec une session payée, clé invalide → code HTTP ≥ 500, message « Impossible de vérifier votre commande pour le moment. » (distinct de « Commande introuvable »), `ClearCartOnMount` non invoqué.
   - Test manuel (Ben) : panier monté à 11 unités d'un produit, clic sur « Payer » dans `/commande` → message d'erreur lisible affiché, aucune redirection vers Stripe.
   - Non-régression : contrôle positif `amount_total: 10500` ; tests 1 à 6 et 8 à 10 du Point 2 inchangés ; session payée avec clé valide → HTTP 200, confirmation affichée, `ClearCartOnMount` invoqué ; 0 occurrence `sk_test_`/`sk_live_` dans `.next/static`, avec contrôle de l'outil sur un motif connu.
-  - Clé restaurée dans `.env` en fin de chantier, contrôle positif rejoué après restauration, aucune valeur de clé affichée.
+  - `.env` inchangé en fin de chantier (empreinte sha256 identique avant et après ; panne simulée par la variable d'environnement STRIPE_SECRET_KEY surchargée au lancement de `pnpm start`, sans modifier `.env`), contrôle positif rejoué avec la configuration normale, aucune valeur de clé affichée.
 - Hors périmètre (signalé) : plafond côté panier et persistance (chantier U), limite du nombre de lignes brutes et de la taille du corps avant fusion (rate limiting), variable morte `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (défaut 6), format `78.00 €`.
 
 ## Fermés
