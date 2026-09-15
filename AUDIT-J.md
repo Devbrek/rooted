@@ -72,7 +72,7 @@ Prix de référence (lus via Prisma, mêmes modèles que ceux utilisés par `rou
 | 4 | Quantité négative | 4xx | HTTP 400 `"Panier invalide."` | OK |
 | 5 | Quantité décimale (1.5) | 4xx | HTTP 400 `"Panier invalide."` | OK |
 | 6 | Quantité non numérique | 4xx | HTTP 400 `"Panier invalide."` | OK |
-| 7 | Quantité très grande (100000) | — | **HTTP 200**, session créée, `amount_total: 280000000` (2 800 000,00 €). Aucun rejet, ni côté validation applicative ni côté Stripe. | **DÉFAUT** — gravité : CHOIX |
+| 7 | Quantité très grande (100000) | — | **HTTP 200**, session créée, `amount_total: 280000000` (2 800 000,00 €). Aucun rejet, ni côté validation applicative ni côté Stripe. | **DÉFAUT** — gravité : à corriger |
 | 8 | Panier vide | 4xx | HTTP 400 `"Panier invalide."` | OK |
 | 9 | JSON malformé | 4xx | HTTP 400 `"Panier invalide."` | OK |
 | 10 | Méthode GET | 4xx | HTTP 405, corps vide | OK |
@@ -119,7 +119,7 @@ Aucune correction n'a été appliquée — description factuelle uniquement.
 
 | # | Défaut | Description factuelle | Gravité |
 |---|---|---|---|
-| 1 | Absence de plafond sur la quantité | Une quantité de 100000 (ou plus) est acceptée sans rejet, ni par la validation applicative (`isValidRequestBody` ne vérifie que `Number.isInteger && > 0`) ni par Stripe à la création de session. Une session de 2 800 000,00 € a été créée sans erreur. | CHOIX |
+| 1 | Absence de plafond sur la quantité | Une quantité de 100000 (ou plus) est acceptée sans rejet, ni par la validation applicative (`isValidRequestBody` ne vérifie que `Number.isInteger && > 0`) ni par Stripe à la création de session. Une session de 2 800 000,00 € a été créée sans erreur. | à corriger |
 | 2 | Absence de `try/catch` autour des appels Stripe dans `/api/checkout` | Au-delà de 100 line items, ou avec une clé Stripe invalide, l'exception Stripe n'est pas interceptée : la route renvoie une erreur 500 générique avec un **corps vide**, au lieu d'un message applicatif cohérent (`{"error": "..."}`comme pour les cas 400). Aucune fuite de clé ou de trace constatée dans le corps de réponse. | à corriger |
 | 3 | `/confirmation` renvoie HTTP 200 pour une commande introuvable | Les cas « pas de session_id », « id invalide » et « session non payée » renvoient tous un code HTTP 200 avec le message « Commande introuvable », au lieu d'un code 404. | mineur |
 | 4 | Panne Stripe et commande inexistante non distinguées sur `/confirmation` | En cas d'indisponibilité de Stripe (clé invalide testée), `/confirmation` affiche « Commande introuvable » même pour l'identifiant d'une session réellement payée — le `catch` interne de `getPaidSession` traite panne technique et absence de commande de la même façon, sans distinction pour l'utilisateur ni de code d'erreur différent. | à corriger |
