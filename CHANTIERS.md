@@ -79,26 +79,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
-### U — Persistance du panier
-
-- Corrige le défaut 5 de `AUDIT-J.md` (panier perdu au retour depuis Stripe) et ajoute le plafond de 10 par produit côté panier (reporté de T).
-- Mécanisme : `localStorage`, clé versionnée `rooted-cart-v1`, sans dépendance ajoutée. Données stockées : `productId` et quantité uniquement, aucun prix ni donnée personnelle.
-- Relecture défensive : JSON invalide, forme inattendue, quantité non entière ou hors 1–10 → ligne ignorée, aucune erreur affichée ni plantage.
-- Plafond : champ de quantité borné à 10, saisie supérieure ramenée à 10, message « 10 maximum par produit » affiché sous la ligne concernée. Nom et prix des lignes restaurées relus depuis la liste de produits fournie par le layout.
-- Le stockage n'est jamais écrit avant d'avoir été lu au chargement (pas d'écrasement par un panier vide).
-- `ClearCartOnMount` vide aussi le stockage, uniquement après paiement vérifié.
-- Critères d'acceptation (tests manuels par Ben sur `pnpm build` + `pnpm start`, stockage vérifié dans l'onglet Application des outils de développement ; curl ne prouve rien ici) :
-  - Ajout de produits → rechargement → panier et compteur du header identiques.
-  - Panier rempli → Stripe → annulation → panier intact. Idem après carte refusée et après bouton retour du navigateur.
-  - Paiement abouti → `/confirmation` → panier vide et clé `rooted-cart-v1` absente du stockage.
-  - Valeur corrompue saisie à la main dans le stockage → page chargée sans erreur, ligne invalide ignorée.
-  - Quantité 11 saisie à la main dans le stockage → ligne ignorée.
-  - Onzième unité d'un produit dans le panier → impossible, message affiché.
-  - Panier rempli, rechargement → stockage non remplacé par un panier vide.
-  - Desktop et mobile.
-  - Non-régression : contrôle positif de `/api/checkout` (`amount_total: 10500`) ; session non payée → `/confirmation` en 404, panier conservé.
-- Hors périmètre (signalé) : synchronisation entre onglets ; produit supprimé de la base mais présent dans le stockage (déjà rejeté par `/api/checkout` en 400) ; ajout depuis la fiche produit et toast (chantier V).
-
 ### V — Ajout au panier depuis la fiche produit
 
 - Sélecteur de quantité sur la fiche produit, ajout de plusieurs unités en un clic, sans passer par la page panier.
@@ -170,3 +150,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Test manuel (Ben) : panier à 11 unités, clic « Payer » → message d'erreur affiché, aucune redirection vers Stripe.
 - Toutes les phases précédées d'une reproduction des défauts sur le code non modifié, tests exécutés sur `pnpm build` + `pnpm start`, contrôle positif rejoué après chaque test de panne, empreinte `.env` vérifiée inchangée.
 - Défaut 5 (panier perdu au retour depuis Stripe) et plafond côté panier hors périmètre, reportés au chantier U. Défaut mineur 6 (variable morte) non traité. Sorties de périmètre non traitées : limite du nombre de lignes brutes et de la taille du corps avant fusion (liée au rate limiting, absent), format des montants `78.00 €`.
+
+### U — Persistance du panier — fermé le 2026-09-15
+
+- Panier persisté dans `localStorage` (clé `rooted-cart-v1`, `productId` et quantité uniquement). Nom et prix relus depuis la liste de produits fournie par le layout (Prisma). Relecture défensive : JSON invalide, quantité hors 1–10, produit inconnu et doublons de `productId` ignorés. Clé supprimée quand le panier est vide et après paiement vérifié. Défaut 5 de `AUDIT-J.md` corrigé.
+- Plafond de 10 par produit côté panier : champ borné, saisie supérieure ramenée à 10, message « 10 maximum par produit ».
+- Tests manuels (Ben) sur `pnpm build` + `pnpm start`, desktop et mobile : rechargement, annulation Stripe, carte refusée, bouton retour, paiement abouti (clé absente), valeur corrompue, quantité 11, doublon, saisie de 15, `/confirmation?session_id=abc` en 404 avec panier conservé. Contrôle positif `/api/checkout` : `amount_total: 10500`.
+- Limites connues : `/`, `/commande` et `/panier` sont statiques, la liste de produits servant à la réhydratation est donc figée au build (sans effet sur un catalogue fixe, `/api/checkout` relit toujours la base) ; pas de synchronisation entre onglets ouverts simultanément.
