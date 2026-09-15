@@ -84,7 +84,7 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Corrige le défaut 5 de `AUDIT-J.md` (panier perdu au retour depuis Stripe) et ajoute le plafond de 10 par produit côté panier (reporté de T).
 - Mécanisme : `localStorage`, clé versionnée `rooted-cart-v1`, sans dépendance ajoutée. Données stockées : `productId` et quantité uniquement, aucun prix ni donnée personnelle.
 - Relecture défensive : JSON invalide, forme inattendue, quantité non entière ou hors 1–10 → ligne ignorée, aucune erreur affichée ni plantage.
-- Plafond : au-delà de 10 unités d'un produit, bouton « + » désactivé et message « 10 maximum par produit ».
+- Plafond : champ de quantité borné à 10, saisie supérieure ramenée à 10, message « 10 maximum par produit » affiché sous la ligne concernée. Nom et prix des lignes restaurées relus depuis la liste de produits fournie par le layout.
 - Le stockage n'est jamais écrit avant d'avoir été lu au chargement (pas d'écrasement par un panier vide).
 - `ClearCartOnMount` vide aussi le stockage, uniquement après paiement vérifié.
 - Critères d'acceptation (tests manuels par Ben sur `pnpm build` + `pnpm start`, stockage vérifié dans l'onglet Application des outils de développement ; curl ne prouve rien ici) :
