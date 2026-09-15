@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { ClearCartOnMount } from "@/components/clear-cart-on-mount";
 
@@ -8,11 +9,17 @@ import { ClearCartOnMount } from "@/components/clear-cart-on-mount";
 // Stripe atteste explicitement que le paiement est réglé. Le session_id de
 // l'URL n'est qu'un pointeur : il ne prouve rien par lui-même (manipulable
 // par le client), d'où cette vérification.
+//
+// Distingue « commande introuvable » (déclenche not-found.tsx, HTTP 404) de
+// « panne technique » (lance une Error, capturée par error.tsx) : seule une
+// session absente, un identifiant inconnu de Stripe (resource_missing) ou un
+// paiement non abouti relève du premier cas ; toute autre erreur Stripe
+// (ex. authentification) relève du second.
 async function getPaidSession(
   sessionId: string | string[] | undefined
-): Promise<Stripe.Checkout.Session | null> {
+): Promise<Stripe.Checkout.Session> {
   if (typeof sessionId !== "string" || sessionId.length === 0) {
-    return null;
+    notFound();
   }
 
   let session: Stripe.Checkout.Session;
@@ -20,13 +27,22 @@ async function getPaidSession(
     session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ["line_items"],
     });
-  } catch {
-    // Identifiant inconnu de Stripe ou mal formé.
-    return null;
+  } catch (error) {
+    // Ne jamais logger l'objet d'erreur complet ni son message : seulement
+    // le type et le code.
+    const stripeError = error as { type?: string; code?: string };
+    console.error("Échec de lecture de la session Stripe", {
+      type: stripeError?.type ?? "unknown",
+      code: stripeError?.code ?? "unknown",
+    });
+    if (stripeError?.code === "resource_missing") {
+      notFound();
+    }
+    throw new Error("Impossible de vérifier la commande.");
   }
 
   if (session.payment_status !== "paid") {
-    return null;
+    notFound();
   }
 
   return session;
@@ -37,29 +53,6 @@ export default async function ConfirmationPage({
 }: PageProps<"/confirmation">) {
   const { session_id: sessionId } = await searchParams;
   const session = await getPaidSession(sessionId);
-
-  if (!session) {
-    return (
-      <main>
-        <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-6 py-24 text-center">
-          <h1 className="font-serif text-3xl text-foreground">
-            Commande introuvable
-          </h1>
-          <p className="font-sans text-foreground">
-            Impossible de confirmer cette commande : le paiement n&rsquo;a pas
-            pu être vérifié auprès de Stripe (session absente, invalide, ou
-            paiement non abouti).
-          </p>
-          <Link
-            href="/panier"
-            className="text-sm tracking-wide text-secondary uppercase transition-colors hover:text-foreground"
-          >
-            Retour au panier
-          </Link>
-        </div>
-      </main>
-    );
-  }
 
   const lineItems = session.line_items?.data ?? [];
   const total = (session.amount_total ?? 0) / 100;
