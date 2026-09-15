@@ -65,24 +65,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
-### T — Correction des défauts serveur de l'audit J
-
-- Corrige les défauts 1, 2, 3, 4 et 7 de `AUDIT-J.md`. Fichiers visés : `app/api/checkout/route.ts`, `app/confirmation/page.tsx` (et le module de `getPaidSession` s'il est séparé).
-- Ordre de validation imposé dans `/api/checkout` : 1) chaque ligne a une quantité entière > 0, 2) produits inconnus rejetés, 3) doublons de `productId` fusionnés, 4) plafond de 10 appliqué à la quantité cumulée par produit.
-- Phase 0 (reproduction, avant toute modification) : rejouer sur le code actuel les tests 7 et 13 du Point 2, le test de clé invalide du Point 4, les tests 1 à 3 du Point 3, et noter ce que `/commande` affiche aujourd'hui sur une réponse 400 (test manuel navigateur par Ben). Chaque échec constaté est consigné avec sa commande et sa sortie.
-- Critères d'acceptation (tests exécutés sur `pnpm build` + `pnpm start`) :
-  - Quantité 100000 sur un produit → HTTP 400, corps `{"error": "Quantité maximale dépassée (10 par produit)."}`, aucune session créée.
-  - Trois lignes du même produit à 4 chacune (cumul 12) → HTTP 400, même message.
-  - Deux lignes du même produit à 2 et 3 → HTTP 200, un seul line item de quantité 5 dans la session Stripe.
-  - 200 lignes du même produit → HTTP 400 (plafond), plus de HTTP 500.
-  - Clé Stripe invalide, `POST /api/checkout` avec panier valide → HTTP 500, corps `{"error": "Le paiement est momentanément indisponible."}` non vide, aucune clé ni trace dans le corps.
-  - `/confirmation` sans `session_id`, avec `session_id=abc`, et avec une session non payée → HTTP 404 et message « Commande introuvable ».
-  - `/confirmation` avec une session payée, clé invalide → code HTTP ≥ 500, message « Impossible de vérifier votre commande pour le moment. » (distinct de « Commande introuvable »), `ClearCartOnMount` non invoqué.
-  - Test manuel (Ben) : panier monté à 11 unités d'un produit, clic sur « Payer » dans `/commande` → message d'erreur lisible affiché, aucune redirection vers Stripe.
-  - Non-régression : contrôle positif `amount_total: 10500` ; tests 1 à 6 et 8 à 10 du Point 2 inchangés ; session payée avec clé valide → HTTP 200, confirmation affichée, `ClearCartOnMount` invoqué ; 0 occurrence `sk_test_`/`sk_live_` dans `.next/static`, avec contrôle de l'outil sur un motif connu.
-  - `.env` inchangé en fin de chantier (empreinte sha256 identique avant et après ; panne simulée par la variable d'environnement STRIPE_SECRET_KEY surchargée au lancement de `pnpm start`, sans modifier `.env`), contrôle positif rejoué avec la configuration normale, aucune valeur de clé affichée.
-- Hors périmètre (signalé) : plafond côté panier et persistance (chantier U), limite du nombre de lignes brutes et de la taille du corps avant fusion (rate limiting), variable morte `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (défaut 6), format `78.00 €`.
-
 ### V — Ajout au panier depuis la fiche produit
 
 - Sélecteur de quantité sur la fiche produit, ajout de plusieurs unités en un clic, sans passer par la page panier.
@@ -146,3 +128,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Audit en lecture et exécution sur 4 points (clé secrète, prix relus en base, vérification de la session avant confirmation, cas d'échec), rapport complet dans `AUDIT-J.md`. Aucune fuite de clé, prix non falsifiables, confirmation conditionnée au paiement réel.
 - Défauts à corriger (chantier de correction à créer) : absence de plafond de quantité, erreurs Stripe non interceptées dans `/api/checkout`, panne Stripe confondue avec commande introuvable sur `/confirmation`, panier perdu au retour depuis Stripe. Trois défauts mineurs consignés dans le rapport.
 - Limite : tests exécutés en local uniquement, production non inspectée.
+
+### T — Correction des défauts serveur de l'audit J — fermé le 2026-09-15
+
+- Phase 1 (`/api/checkout`) : plafond de 10 par produit appliqué à la quantité cumulée après fusion des doublons (un seul line item Stripe par produit), erreurs Stripe interceptées (`try/catch` limité à l'appel Stripe), réponse 500 avec message applicatif au lieu d'un corps vide. Défauts 1, 2 et 7 de `AUDIT-J.md` corrigés.
+- Phase 2 (`/confirmation`) : distinction entre commande introuvable (`resource_missing` → HTTP 404 via `not-found.tsx`) et panne Stripe (toute autre erreur → HTTP ≥ 500 via `error.tsx`), au lieu d'un HTTP 200 uniforme. Défauts 3 et 4 corrigés.
+- Toutes les phases précédées d'une reproduction des défauts sur le code non modifié, tests exécutés sur `pnpm build` + `pnpm start`, contrôle positif rejoué après chaque test de panne, empreinte `.env` vérifiée inchangée.
+- Défaut 5 (panier perdu au retour depuis Stripe) hors périmètre, reporté au chantier U. Défauts mineurs 6 (variable morte) et 7 bis (format des montants) non traités.
