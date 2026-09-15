@@ -6,8 +6,22 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ### F — Agent IA de support
 
-- Agent LangGraph avec RAG sur les données produit/commandes (statut commande, caractéristiques produit, politique de retour).
-- Critère d'acceptation : l'agent répond correctement à 3 questions types testées manuellement (statut, produit, retour).
+- Agent LangGraph, deux sources : RAG (recherche dans des textes indexés) sur les fiches produit et la politique de retour ; outil en lecture seule pour le statut de commande, qui relit la session Stripe. Décision : pas de table `Order`, Stripe reste la seule source de vérité.
+- Outil « statut de commande » :
+  - Entrée : identifiant de session uniquement, format vérifié avant tout appel Stripe (préfixe `cs_test_`). Jamais de recherche par email ou par nom.
+  - Sortie en liste blanche : statut de paiement (payée / non payée), articles (nom, quantité), montant total. `customer_details` et tout autre champ de la session exclus.
+  - Aucun statut de livraison : l'agent indique que la démo n'a pas de suivi d'expédition.
+  - Session inconnue → « commande introuvable » ; panne Stripe → message distinct (même logique que `/confirmation`, chantier T).
+  - Aucune écriture ni action sur Stripe (pas de remboursement, pas d'annulation).
+- Critères d'acceptation :
+  - Outil exécuté seul, hors agent : session payée → « payée », articles et montant identiques à la session relue via l'API ; session non payée → « non payée » ; `cs_test_` inexistant → introuvable.
+  - `abc` et un identifiant `cs_live_…` → rejetés, 0 appel Stripe, avec contrôle positif (un identifiant valide produit bien 1 appel).
+  - Confidentialité : session payée avec un email témoin saisi sur Stripe → 0 occurrence de cet email dans la sortie de l'outil, avec contrôle de l'outil de mesure (l'email témoin est présent dans la session relue directement via l'API).
+  - Panne Stripe (clé surchargée au lancement, `.env` inchangé) → message distinct de « commande introuvable ».
+  - Agent, test manuel (Ben) : 3 questions types (statut avec un identifiant de session payée, caractéristique d'un produit, politique de retour) → réponses correctes, sans information inventée.
+- Prérequis : texte de politique de retour fictive, écrit et validé avant indexation, couvert par la mention du chantier I.
+- Limites connues (pour H) : l'identifiant de session sert de preuve d'accès (lien au porteur, cf. `AUDIT-J.md`) ; pas de statut de livraison.
+- Hors périmètre (signalé) : dépendances de l'agent (LangGraph, fournisseur de modèle, stockage de l'index RAG) à décider explicitement à l'ouverture de F ; garde-fous généraux (chantier G).
 
 ### G — Garde-fous de l'agent
 
