@@ -25,11 +25,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Prérequis des chantiers N, P, Q, R (tout contenu fictif ajouté doit être couvert par cette mention).
 - Critère d'acceptation : mention visible sur les 5 écrans, formulée sans ambiguïté, vérifiée à l'affichage.
 
-### J — Audit de sécurité du tunnel de paiement
-
-- Revue ciblée : aucune clé secrète exposée côté client, prix relus en base côté serveur, session Stripe vérifiée avant confirmation, gestion des cas d'échec.
-- Critère d'acceptation : chaque point vérifié par exécution (test négatif + contrôle positif), résultats consignés.
-
 ### K — Filtrage du catalogue
 
 - Système de filtrage des produits sur la page catalogue (critère de filtrage à définir — 5 produits seulement en base).
@@ -101,3 +96,9 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 ### E-bis — Style et identité visuelle (chantier intermédiaire) — fermé le 2026-09-15
 
 - Palette et polices déclarées en jetons, 5 écrans stylisés, vraies photos branchées, icônes SVG écrites à la main, mention "Projet démo — produits fictifs" au footer.
+
+### J — Audit de sécurité du tunnel de paiement — fermé le 2026-09-15
+
+- Audit en lecture et exécution sur 4 points (clé secrète, prix relus en base, vérification de la session avant confirmation, cas d'échec), rapport complet dans `AUDIT-J.md`. Aucune fuite de clé, prix non falsifiables, confirmation conditionnée au paiement réel.
+- Défauts à corriger (chantier de correction à créer) : absence de plafond de quantité, erreurs Stripe non interceptées dans `/api/checkout`, panne Stripe confondue avec commande introuvable sur `/confirmation`, panier perdu au retour depuis Stripe. Trois défauts mineurs consignés dans le rapport.
+- Limite : tests exécutés en local uniquement, production non inspectée.
