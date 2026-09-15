@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
 
 import "./globals.css";
+import { prisma } from "@/lib/prisma";
 import { CartProvider } from "@/components/cart-context";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -26,14 +27,18 @@ export const metadata: Metadata = {
   description: "Site Demo E-commerce - Décoration d'ambiance nature apaisante.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const products = await prisma.product.findMany({
+    select: { id: true, name: true, price: true },
+  });
+
   return (
     <html
       lang="fr"
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
-        <CartProvider>
+        <CartProvider products={products}>
           <Header />
           {children}
           <Footer />
