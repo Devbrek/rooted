@@ -131,7 +131,8 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ### T — Correction des défauts serveur de l'audit J — fermé le 2026-09-15
 
-- Phase 1 (`/api/checkout`) : plafond de 10 par produit appliqué à la quantité cumulée après fusion des doublons (un seul line item Stripe par produit), erreurs Stripe interceptées (`try/catch` limité à l'appel Stripe), réponse 500 avec message applicatif au lieu d'un corps vide. Défauts 1, 2 et 7 de `AUDIT-J.md` corrigés.
+- Phase 1 (`/api/checkout`) : plafond de 10 par produit appliqué à la quantité cumulée après fusion des doublons (un seul line item Stripe par produit), erreurs Stripe interceptées (`try/catch` limité à l'appel Stripe), réponse 500 avec message applicatif au lieu d'un corps vide. Défauts 1, 2 et 7 de `AUDIT-J.md` corrigés. Log serveur de l'erreur Stripe réduit à {type, code} (vérifié par lecture du diff, pas par exécution).
 - Phase 2 (`/confirmation`) : distinction entre commande introuvable (`resource_missing` → HTTP 404 via `not-found.tsx`) et panne Stripe (toute autre erreur → HTTP ≥ 500 via `error.tsx`), au lieu d'un HTTP 200 uniforme. Défauts 3 et 4 corrigés.
+- Test manuel (Ben) : panier à 11 unités, clic « Payer » → message d'erreur affiché, aucune redirection vers Stripe.
 - Toutes les phases précédées d'une reproduction des défauts sur le code non modifié, tests exécutés sur `pnpm build` + `pnpm start`, contrôle positif rejoué après chaque test de panne, empreinte `.env` vérifiée inchangée.
-- Défaut 5 (panier perdu au retour depuis Stripe) hors périmètre, reporté au chantier U. Défauts mineurs 6 (variable morte) et 7 bis (format des montants) non traités.
+- Défaut 5 (panier perdu au retour depuis Stripe) et plafond côté panier hors périmètre, reportés au chantier U. Défaut mineur 6 (variable morte) non traité. Sorties de périmètre non traitées : limite du nombre de lignes brutes et de la taille du corps avant fusion (liée au rate limiting, absent), format des montants `78.00 €`.
