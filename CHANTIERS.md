@@ -65,6 +65,24 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
+### T — Correction des défauts serveur de l'audit J
+
+- Corrige les défauts 1, 2, 3, 4 et 7 de `AUDIT-J.md`. Fichiers visés : `app/api/checkout/route.ts`, `app/confirmation/page.tsx` (et le module de `getPaidSession` s'il est séparé).
+- Ordre de validation imposé dans `/api/checkout` : 1) chaque ligne a une quantité entière > 0, 2) produits inconnus rejetés, 3) doublons de `productId` fusionnés, 4) plafond de 10 appliqué à la quantité cumulée par produit.
+- Phase 0 (reproduction, avant toute modification) : rejouer sur le code actuel les tests 7 et 13 du Point 2, le test de clé invalide du Point 4, les tests 1 à 3 du Point 3, et noter ce que `/commande` affiche aujourd'hui sur une réponse 400 (test manuel navigateur par Ben). Chaque échec constaté est consigné avec sa commande et sa sortie.
+- Critères d'acceptation (tests exécutés sur `pnpm build` + `pnpm start`) :
+  - Quantité 100000 sur un produit → HTTP 400, corps `{"error": "Quantité maximale dépassée (10 par produit)."}`, aucune session créée.
+  - Trois lignes du même produit à 4 chacune (cumul 12) → HTTP 400, même message.
+  - Deux lignes du même produit à 2 et 3 → HTTP 200, un seul line item de quantité 5 dans la session Stripe.
+  - 200 lignes du même produit → HTTP 400 (plafond), plus de HTTP 500.
+  - Clé Stripe invalide, `POST /api/checkout` avec panier valide → HTTP 500, corps `{"error": "Le paiement est momentanément indisponible."}` non vide, aucune clé ni trace dans le corps.
+  - `/confirmation` sans `session_id`, avec `session_id=abc`, et avec une session non payée → HTTP 404 et message « Commande introuvable ».
+  - `/confirmation` avec une session payée, clé invalide → code HTTP ≥ 500, message « Impossible de vérifier votre commande pour le moment. » (distinct de « Commande introuvable »), `ClearCartOnMount` non invoqué.
+  - Test manuel (Ben) : panier monté à 11 unités d'un produit, clic sur « Payer » dans `/commande` → message d'erreur lisible affiché, aucune redirection vers Stripe.
+  - Non-régression : contrôle positif `amount_total: 10500` ; tests 1 à 6 et 8 à 10 du Point 2 inchangés ; session payée avec clé valide → HTTP 200, confirmation affichée, `ClearCartOnMount` invoqué ; 0 occurrence `sk_test_`/`sk_live_` dans `.next/static`, avec contrôle de l'outil sur un motif connu.
+  - Clé restaurée dans `.env` en fin de chantier, contrôle positif rejoué après restauration, aucune valeur de clé affichée.
+- Hors périmètre (signalé) : plafond côté panier et persistance (chantier U), limite du nombre de lignes brutes et de la taille du corps avant fusion (rate limiting), variable morte `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (défaut 6), format `78.00 €`.
+
 ## Fermés
 
 ### A — Définir le produit — fermé le 2026-09-15
