@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/components/cart-context";
+import { MAX_QUANTITY, useCart } from "@/components/cart-context";
 import { ThinBanner } from "@/components/thin-banner";
 import { getProductImage } from "@/lib/product-images";
 
@@ -13,7 +13,7 @@ export default function CartPage() {
 
   function handleQuantityChange(productId: string, rawValue: string) {
     const value = Number(rawValue);
-    if (!Number.isNaN(value)) {
+    if (Number.isInteger(value)) {
       setQuantity(productId, value);
     }
   }
@@ -41,7 +41,7 @@ export default function CartPage() {
               return (
                 <li
                   key={item.productId}
-                  className="flex flex-col gap-4 border-b border-accent/30 pb-6 sm:flex-row sm:items-center"
+                  className="flex flex-col gap-4 border-b border-accent/30 pb-6 sm:flex-row sm:flex-wrap sm:items-center"
                 >
                   <div className="flex items-center gap-4">
                     <div className="relative aspect-square w-20 shrink-0 overflow-hidden bg-section">
@@ -82,6 +82,7 @@ export default function CartPage() {
                         id={`quantite-${item.productId}`}
                         type="number"
                         min={1}
+                        max={MAX_QUANTITY}
                         value={item.quantity}
                         onChange={(event) =>
                           handleQuantityChange(item.productId, event.target.value)
@@ -102,6 +103,12 @@ export default function CartPage() {
                       Supprimer
                     </button>
                   </div>
+
+                  {item.quantity === MAX_QUANTITY && (
+                    <p className="w-full text-xs text-secondary">
+                      10 maximum par produit
+                    </p>
+                  )}
                 </li>
               );
             })}
