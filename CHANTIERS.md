@@ -83,6 +83,14 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - `.env` inchangé en fin de chantier (empreinte sha256 identique avant et après ; panne simulée par la variable d'environnement STRIPE_SECRET_KEY surchargée au lancement de `pnpm start`, sans modifier `.env`), contrôle positif rejoué avec la configuration normale, aucune valeur de clé affichée.
 - Hors périmètre (signalé) : plafond côté panier et persistance (chantier U), limite du nombre de lignes brutes et de la taille du corps avant fusion (rate limiting), variable morte `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (défaut 6), format `78.00 €`.
 
+### V — Ajout au panier depuis la fiche produit
+
+- Sélecteur de quantité sur la fiche produit, ajout de plusieurs unités en un clic, sans passer par la page panier.
+- Notification temporaire (toast) confirmant l'ajout : nom du produit, quantité ajoutée, lien vers le panier. Disparition automatique. Composant écrit à la main, sans dépendance ajoutée.
+- Dépend de U (plafond côté panier et `cart-context.tsx`) : le sélecteur respecte le plafond de 10 par produit, en tenant compte des unités déjà présentes dans le panier. Comportement au-delà du plafond à définir avant le chantier.
+- Mise à jour de l'écran 2 de `WIREFRAME.md` incluse.
+- Critère d'acceptation : ajout de N unités (1 ≤ N ≤ 10) reflété dans le compteur du header et la page panier ; impossible de dépasser 10 unités cumulées pour un produit ; toast affiché à chaque ajout puis disparu ; testé manuellement en desktop et mobile.
+
 ## Fermés
 
 ### A — Définir le produit — fermé le 2026-09-15
