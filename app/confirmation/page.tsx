@@ -1,9 +1,9 @@
 import type Stripe from "stripe";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { ClearCartOnMount } from "@/components/clear-cart-on-mount";
+import { ThinBanner } from "@/components/thin-banner";
 
 // Relit la session Stripe côté serveur et ne la considère confirmée que si
 // Stripe atteste explicitement que le paiement est réglé. Le session_id de
@@ -61,22 +61,12 @@ export default async function ConfirmationPage({
     <main>
       <ClearCartOnMount />
 
-      {/* Photo pleine largeur, apaisante — pas d'effet "célébration". */}
-      <div className="relative aspect-video w-full overflow-hidden">
-        <Image
-          src="/confirmation.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-      </div>
+      <ThinBanner title="Commande confirmée" />
 
       <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-6 py-16 text-center">
-        <h1 className="font-serif text-3xl text-foreground sm:text-4xl">
+        <h2 className="font-serif text-3xl text-foreground sm:text-4xl">
           Merci, votre commande est confirmée
-        </h1>
+        </h2>
         <p className="font-sans text-sm text-foreground/70">
           Numéro de commande : {session.id}
         </p>
