@@ -149,6 +149,14 @@ export default function CheckoutPage() {
             </p>
           )}
 
+          <div className="border border-accent/30 bg-section px-4 py-3">
+            <p className="font-sans text-sm text-foreground/80">
+              Paiement en mode test : utilisez la carte 4242 4242 4242 4242,
+              une date d&apos;expiration future et n&apos;importe quel code à
+              3 chiffres. Saisissez uniquement des informations fictives.
+            </p>
+          </div>
+
           <button
             type="button"
             onClick={handlePayer}
