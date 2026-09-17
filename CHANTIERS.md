@@ -43,11 +43,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Développer le contenu de la section (structure et texte), dans le ton validé.
 - Critère d'acceptation : section enrichie, textes validés avant intégration, cohérents avec la mention du chantier I.
 
-### P — Avis clients factices
-
-- Avis avec notation en étoiles, contenu fictif.
-- Critère d'acceptation : caractère fictif explicite, aucune attribution à une personne réelle ou identifiable.
-
 ### Q — Emplacements de boutique factices
 
 - Carte affichant de faux points de vente (bibliothèque cartographique à décider — dépendance à valider explicitement).
@@ -187,3 +182,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Lien « Blog » ajouté dans le header, desktop et menu mobile ; liens de navigation desktop (Catalogue, Blog, Contact) recentrés dans le header, logo à gauche et Panier/menu à droite inchangés.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : les 3 articles s'affichent depuis la liste, mention fictive visible, lien du header fonctionnel, navigation centrée.
 - Non vérifié par l'assistant (Ben gère le serveur) : comportement HTTP réel (404 sur slug inconnu, 200 sur slug valide) — à confirmer par Ben via `curl`, la structure du code (`if (!post) notFound()`) suit le même modèle déjà validé sur `/produits/[id]`.
+
+### P — Avis clients factices — fermé le 2026-09-17
+
+- Données dans `lib/reviews.ts` : 2 à 3 avis par produit pour les 5 produits réels en base (prénom inventé seul, texte court, aucune allégation technique/santé/commerciale). Composant `StarRating` (SVG écrit à la main, `role="img"` avec texte accessible « Note : X sur 5 »).
+- Composant `ReviewCarousel` (client) : affiche un avis à la fois, défilement automatique toutes les 2,5 s, points de navigation cliquables, arrêt du défilement automatique si l'utilisateur réduit les animations (`prefers-reduced-motion`).
+- Section sur l'accueil (`HomeReviews`, 3 avis sélectionnés sur 3 produits différents) et sur chaque fiche produit (`ProductReviews`, moyenne + nombre d'avis + carrousel des avis du produit). Mention « Avis fictifs » visible dans les deux sections.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : affichage accueil et fiche produit, défilement automatique du carrousel, moyenne cohérente, mention fictive visible.
