@@ -16,6 +16,9 @@
   /* Photo grand format de la fiche produit (photo d'ambiance, pas un carré
      de catalogue). */
   --aspect-product: 4 / 5;
+
+  /* Carte des boutiques (chantier Q). */
+  --aspect-map: 4 / 3;
 }
 
 /* Polices next/font (voir app/layout.tsx) exposées comme jetons Tailwind. */
@@ -42,4 +45,11 @@
   .page-fade-in {
     animation: none;
   }
+}
+
+/* Icône de marqueur écrite à la main (divIcon, chantier Q) : Leaflet ajoute
+   un fond blanc et une bordure par défaut à ses divIcon, qu'on retire ici. */
+.shop-marker {
+  background: transparent;
+  border: none;
 }
