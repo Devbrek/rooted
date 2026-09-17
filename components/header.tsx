@@ -98,9 +98,9 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-40 flex h-20 items-center justify-between border-b px-6 transition-colors duration-300 ease-out motion-reduce:transition-none ${surfaceClasses}`}
+      className={`sticky top-0 z-40 flex h-20 items-center border-b px-6 transition-colors duration-300 ease-out motion-reduce:transition-none ${surfaceClasses}`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex flex-1 items-center">
         <Link href="/">
           <Image
             src={transparent ? "/RsoloWhite.svg" : "/Rsolo.svg"}
@@ -117,38 +117,51 @@ export function Header() {
             className="hidden h-12 w-auto sm:block"
           />
         </Link>
+      </div>
+
+      <nav className="hidden flex-1 items-center justify-center gap-8 sm:flex">
         <Link
           href="/"
-          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
         >
           Catalogue
         </Link>
         <Link
+          href="/blog"
+          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          Blog
+        </Link>
+        <Link
           href="/contact"
-          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
         >
           Contact
         </Link>
+      </nav>
+
+      <div className="flex flex-1 items-center justify-end gap-4">
+        <Link
+          href="/panier"
+          className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          <span>Panier ({itemCount})</span>
+          {itemCount > 0 ? (
+            <span>{currencyFormatter.format(total)}</span>
+          ) : null}
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          className={`sm:hidden ${iconColorClasses}`}
+        >
+          <MenuIcon open={menuOpen} />
+        </button>
       </div>
-
-      <Link
-        href="/panier"
-        className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${linkColorClasses}`}
-      >
-        <span>Panier ({itemCount})</span>
-        {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
-      </Link>
-
-      <button
-        type="button"
-        onClick={() => setMenuOpen((open) => !open)}
-        aria-expanded={menuOpen}
-        aria-controls="mobile-menu"
-        aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-        className={`sm:hidden ${iconColorClasses}`}
-      >
-        <MenuIcon open={menuOpen} />
-      </button>
 
       <div
         id="mobile-menu"
@@ -161,6 +174,13 @@ export function Header() {
           className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
         >
           Catalogue
+        </Link>
+        <Link
+          href="/blog"
+          onClick={() => setMenuOpen(false)}
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Blog
         </Link>
         <Link
           href="/contact"
