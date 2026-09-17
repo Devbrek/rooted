@@ -48,11 +48,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Carte affichant de faux points de vente (bibliothèque cartographique à décider — dépendance à valider explicitement).
 - Critère d'acceptation : caractère fictif explicite, dépendance validée avant installation.
 
-### R — Liens de réseaux sociaux factices
-
-- Icônes de réseaux sociaux dans le footer, sans lien vers des comptes réels.
-- Critère d'acceptation : aucun lien sortant vers un compte inexistant ou appartenant à un tiers ; caractère fictif explicite.
-
 ### S — Produits en favoris
 
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
@@ -189,3 +184,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Composant `ReviewCarousel` (client) : affiche un avis à la fois, défilement automatique toutes les 2,5 s, points de navigation cliquables, arrêt du défilement automatique si l'utilisateur réduit les animations (`prefers-reduced-motion`).
 - Section sur l'accueil (`HomeReviews`, 3 avis sélectionnés sur 3 produits différents) et sur chaque fiche produit (`ProductReviews`, moyenne + nombre d'avis + carrousel des avis du produit). Mention « Avis fictifs » visible dans les deux sections.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : affichage accueil et fiche produit, défilement automatique du carrousel, moyenne cohérente, mention fictive visible.
+- Retouche demandée après test : carrousel remplacé par un défilement fluide (translation, 700 ms) au lieu d'un remplacement instantané du contenu.
+
+### R — Liens de réseaux sociaux factices — fermé le 2026-09-17
+
+- 3 icônes écrites à la main (SVG génériques, ne reproduisant aucun logo réel) dans le footer, dans un `<span role="img">` : ni lien, ni bouton, effet visuel au survol (`hover`) uniquement décoratif. Libellé visible « Réseaux sociaux fictifs » au-dessus.
+- Vérification : `grep` sur `components/social-icons.tsx` montrant 0 occurrence de `href` et de `<a`, avec contrôle positif sur `role="img"`.
+- Retouches demandées après test : éléments du footer (navigation, icônes, mentions) recentrés ; transition douce (fondu, 300 ms, `prefers-reduced-motion` respecté) ajoutée au changement de page via un composant `PageTransition` monté dans `app/layout.tsx`, en remplacement du remplacement instantané du contenu au clic dans la navbar — changement transverse à toutes les pages, au-delà du seul périmètre de ce chantier.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : icônes visibles et non cliquables, hover visible, footer centré, transition de page fluide au clic sur un lien.
