@@ -55,7 +55,10 @@ export function ProductGrid({ products }: { products: Product[] }) {
         );
 
   return (
-    <section id="catalogue" className="bg-background px-6 py-20">
+    <section
+      id="catalogue"
+      className="scroll-mt-20 bg-background px-6 py-20"
+    >
       <div className="mx-auto max-w-5xl">
         <SectionHeading title="Catalogue" />
 
