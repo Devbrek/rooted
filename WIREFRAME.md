@@ -21,7 +21,7 @@ Contrainte transversale : uniquement des photos libres de droit (Unsplash/Pexels
 ## Écran 2 — Fiche produit
 
 1. Une seule photo grand format par produit (photo d'ambiance, pas de packshot).
-2. Nom, prix, description courte (1-2 phrases), bouton "Ajouter au panier".
+2. Nom, prix, description courte (1-2 phrases), sélecteur de quantité (− / +, plafond de 10 par produit, mention des unités déjà au panier), bouton "Ajouter au panier", notification temporaire de confirmation avec lien vers le panier.
 3. Bloc "Matière & entretien" formulé simplement, sans specs techniques inventées.
 4. Bandeau "produits similaires" en bas (3 autres cartes du catalogue).
 
