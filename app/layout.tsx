@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { prisma } from "@/lib/prisma";
 import { CartProvider } from "@/components/cart-context";
+import { CartToast } from "@/components/cart-toast";
 import { DemoBanner } from "@/components/demo-banner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <Header />
           {children}
           <Footer />
+          <CartToast />
         </CartProvider>
       </body>
     </html>
