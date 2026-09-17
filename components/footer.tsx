@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { SocialIcons } from "@/components/social-icons";
 
 export function Footer() {
   return (
-    <footer className="border-t border-accent/30 bg-section px-6 py-8">
+    <footer className="flex flex-col items-center border-t border-accent/30 bg-section px-6 py-8 text-center">
       <nav className="flex gap-4">
         <Link
           href="/"
@@ -17,6 +18,11 @@ export function Footer() {
           Panier
         </Link>
       </nav>
+
+      <div className="mt-6">
+        <SocialIcons />
+      </div>
+
       <p className="mt-4 text-sm text-foreground/70">© Rooted — projet démo</p>
       <p className="mt-1 text-xs text-foreground/60">
         Projet démo — produits fictifs.
