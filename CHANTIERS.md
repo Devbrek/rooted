@@ -33,12 +33,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Page dédiée sur devbrek.fr : schéma du flux agent, vidéo de démo, section limites connues.
 - Critère d'acceptation : page publiée, cohérente avec la règle "vrai et vérifiable".
 
-### I — Mention "site factice"
-
-- Mention explicite et visible que le site est une démo (produits, avis, boutiques, réseaux sociaux fictifs), au-delà de la ligne actuelle du footer.
-- Prérequis des chantiers N, P, Q, R (tout contenu fictif ajouté doit être couvert par cette mention).
-- Critère d'acceptation : mention visible sur les 5 écrans, formulée sans ambiguïté, vérifiée à l'affichage.
-
 ### K — Filtrage du catalogue
 
 - Système de filtrage des produits sur la page catalogue (critère de filtrage à définir — 5 produits seulement en base).
@@ -164,3 +158,9 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Plafond de 10 par produit côté panier : champ borné, saisie supérieure ramenée à 10, message « 10 maximum par produit ».
 - Tests manuels (Ben) sur `pnpm build` + `pnpm start`, desktop et mobile : rechargement, annulation Stripe, carte refusée, bouton retour, paiement abouti (clé absente), valeur corrompue, quantité 11, doublon, saisie de 15, `/confirmation?session_id=abc` en 404 avec panier conservé. Contrôle positif `/api/checkout` : `amount_total: 10500`.
 - Limites connues : `/`, `/commande` et `/panier` sont statiques, la liste de produits servant à la réhydratation est donc figée au build (sans effet sur un catalogue fixe, `/api/checkout` relit toujours la base) ; pas de synchronisation entre onglets ouverts simultanément.
+
+### I — Mention « site factice » — fermé le 2026-09-17
+
+- Bandeau « Site de démonstration : boutique, produits et paiement fictifs. Aucun achat réel, rien ne sera débité. » monté dans le layout, présent sur les 5 écrans (vérifié par curl sur le HTML servi, contrôle de l'outil inclus, et visuellement par Ben en desktop et mobile).
+- Encart sur `/commande` au-dessus du bouton « Payer » : carte de test 4242 4242 4242 4242, date future, code à 3 chiffres, informations fictives uniquement. Vérifié visuellement par Ben (composant client : non vérifiable par curl, qui ne voit que le panier vide).
+- Débloque N, P, Q, R et W.
