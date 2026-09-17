@@ -4,9 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 
+const currencyFormatter = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+});
+
 export function Header() {
   const { items } = useCart();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <header className="flex items-center justify-between border-b border-accent/30 bg-background px-6 py-4">
@@ -23,9 +29,10 @@ export function Header() {
       </div>
       <Link
         href="/panier"
-        className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
       >
-        Panier ({itemCount})
+        <span>Panier ({itemCount})</span>
+        {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
       </Link>
     </header>
   );
