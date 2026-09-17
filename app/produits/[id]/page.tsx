@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import { FavoriteButton } from "@/components/favorite-button";
 import { ProductMaterialCare } from "@/components/product-material-care";
 import { ProductReviews } from "@/components/product-reviews";
 import { SimilarProducts } from "@/components/similar-products";
@@ -49,9 +50,12 @@ export default async function ProductPage({ params }: PageProps<"/produits/[id]"
           </div>
 
           <div className="flex flex-col gap-4">
-            <h1 className="font-serif text-3xl text-foreground sm:text-4xl">
-              {product.name}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="font-serif text-3xl text-foreground sm:text-4xl">
+                {product.name}
+              </h1>
+              <FavoriteButton productId={product.id} />
+            </div>
             <span className="font-serif text-xl text-secondary">
               {product.price.toFixed(2)} €
             </span>
