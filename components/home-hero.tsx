@@ -4,18 +4,26 @@ export function HomeHero() {
   return (
     <section
       id="hero"
-      className="relative -mt-20 flex min-h-screen items-center justify-center overflow-hidden"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
     >
-      <Image
-        src="/hero.jpg"
-        alt="Forêt dans la brume du matin"
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
-      {/* Calque sombre pour la lisibilité du texte, par-dessus la photo. */}
-      <div aria-hidden="true" className="absolute inset-0 bg-foreground/60" />
+      {/*
+        Photo en fond fixe, détachée du flux normal : le header (et le
+        bandeau de démonstration au-dessus de la page) restent ainsi
+        transparents sur la photo quelle que soit leur hauteur combinée, sans
+        calcul de marge négative à faire correspondre au pixel près.
+      */}
+      <div className="fixed inset-0 -z-10">
+        <Image
+          src="/hero.jpg"
+          alt="Forêt dans la brume du matin"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        {/* Calque sombre pour la lisibilité du texte, par-dessus la photo. */}
+        <div aria-hidden="true" className="absolute inset-0 bg-foreground/60" />
+      </div>
 
       <div className="relative z-10 flex max-w-2xl flex-col items-center gap-6 px-6 text-center">
         <h1 className="font-serif text-4xl tracking-wide text-background sm:text-5xl">
