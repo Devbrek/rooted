@@ -176,3 +176,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 - Remplace la seconde barre fixe du chantier M : un seul header collant, transparent (texte blanc, logo clair `rootedWhite2.svg`) posé sur le hero de l'accueil, qui devient blanc en fondu (300 ms, logo `rooted2.svg`) une fois le hero dépassé (IntersectionObserver, sans dépendance, sans animation si l'utilisateur réduit les mouvements). Autres pages : header blanc collant.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : passage transparent → blanc et retour sur l'accueil, lisibilité sur la photo, header blanc collant sur les 4 autres écrans, liens, compteur et toast fonctionnels.
+
+### M-ter — Menu mobile — fermé le 2026-09-17
+
+- Sous `sm` : liens (Catalogue, Panier) regroupés dans un panneau ouvert par un bouton (icône hamburger/croix en SVG écrit à la main), `aria-expanded` et `aria-controls="mobile-menu"`. Panneau à fond opaque `bg-white`, y compris sur le hero transparent.
+- Fermeture par Échap (écouteur `document`, `setState` uniquement dans le callback), par clic sur un lien du panneau, et au changement de page (ajustement d'état pendant le rendu par comparaison du `pathname`, sans effet, pour rester conforme à la règle sur `setState` dans les effets).
+- Logo distinct sous `sm` : `Rsolo.svg` / `RsoloWhite.svg` (le « R » seul) ; à partir de `sm`, `rooted2.svg` / `rootedWhite2.svg` inchangés. Desktop non modifié par ailleurs (liens directs dans le header, pas de bouton menu).
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ouverture/fermeture, Échap, clic sur un lien, lisibilité sur le hero, navigation au clavier, logo « R » sur petit écran, desktop inchangé.
+- Limites connues : pas de piégeage de focus (focus trap) dans le panneau au-delà de la fermeture par Échap ; pas de blocage du défilement de la page derrière le panneau ouvert.
