@@ -43,7 +43,7 @@ Contrainte transversale : uniquement des photos libres de droit (Unsplash/Pexels
 
 ## Écran 5 — Confirmation
 
-1. Photo pleine largeur apaisante (pas d'effet "célébration").
+1. Bandeau photo fin en haut (même gabarit que le panier et le checkout), titre "Commande confirmée" en surimpression, pas d'effet "célébration".
 2. Message court "Merci, votre commande est confirmée" + numéro de commande fictif.
 3. Rappel des articles commandés (mini-cartes format panier).
 4. Bouton discret "Retour au catalogue".
