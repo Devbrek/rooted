@@ -23,3 +23,23 @@
   --font-sans: var(--font-body);
   --font-serif: var(--font-heading);
 }
+
+/* Transition douce du contenu au changement de page (clic dans la navbar). */
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-fade-in {
+  animation: page-fade-in 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-in {
+    animation: none;
+  }
+}
