@@ -3,6 +3,7 @@ import { HomeHero } from "@/components/home-hero";
 import { HomeMission } from "@/components/home-mission";
 import { HomeArguments } from "@/components/home-arguments";
 import { ProductGrid } from "@/components/product-grid";
+import { HomeReviews } from "@/components/home-reviews";
 import { HomeCitation } from "@/components/home-citation";
 
 export default async function Home() {
@@ -14,6 +15,7 @@ export default async function Home() {
       <HomeMission />
       <HomeArguments />
       <ProductGrid products={products} />
+      <HomeReviews />
       <HomeCitation />
     </main>
   );
