@@ -2,7 +2,10 @@ import Image from "next/image";
 
 export function HomeHero() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <section
+      id="hero"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+    >
       <Image
         src="/hero.jpg"
         alt="Forêt dans la brume du matin"
