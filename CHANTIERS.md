@@ -73,21 +73,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
-### V — Ajout au panier depuis la fiche produit et montant dans le header
-
-- Sélecteur de quantité sur la fiche produit : nombre d'unités à ajouter. Si le produit est déjà au panier, mention « Déjà N dans votre panier » ; maximum du sélecteur = 10 − N ; si N = 10, bouton d'ajout désactivé et message « 10 maximum par produit ». Réutilise MAX_QUANTITY et le plafond de `cart-context.tsx` (chantier U).
-- Toast écrit à la main, sans dépendance : nom du produit, quantité ajoutée, lien « Voir le panier ». Disparition après 4 secondes. Bas à droite en desktop, bas pleine largeur en mobile. Annoncé via aria-live="polite".
-- Header : compteur d'articles suivi du montant total du panier, format français (ex. 78,00 €), calculé depuis les prix fournis par le layout (jamais depuis le stockage).
-- Mise à jour de l'écran 2 de `WIREFRAME.md` incluse.
-- Critères d'acceptation (tests manuels par Ben sur `pnpm build` + `pnpm start`, desktop et mobile ; curl ne prouve rien ici) :
-  - Ajout de N unités (1 ≤ N ≤ 10) → compteur, montant du header et page panier mis à jour.
-  - Produit déjà à 7 → sélecteur limité à 3 ; produit à 10 → bouton désactivé, message affiché.
-  - Toast affiché à chaque ajout avec le bon nom et la bonne quantité, puis disparu ; le lien mène au panier.
-  - Montant du header égal au total de la page panier, au format 78,00 €, et à 0,00 € ou masqué quand le panier est vide (choix à montrer dans le plan).
-  - Rechargement → montant du header conservé (persistance U).
-  - Non-régression : tests 1, 3 et 7 de U.
-- Hors périmètre (signalé) : format des montants sur les autres pages (`78.00 €`), navbar fixe au défilement (chantier M).
-
 ### W — Formulaire de livraison et de facturation validé
 
 - Dépend de I : la mention « Projet démo : saisissez des informations fictives, rien n'est conservé » doit être affichée au-dessus du formulaire de `/commande`.
@@ -169,3 +154,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 - Photo pleine hauteur de `/confirmation` remplacée par `ThinBanner` (même gabarit que le panier et le checkout) : message de confirmation visible sans défilement. Écran 5 de `WIREFRAME.md` mis à jour.
 - Vérifié visuellement par Ben sur `pnpm build` + `pnpm start`, desktop et mobile, avec une session payée.
+
+### V — Ajout au panier depuis la fiche produit et montant dans le header — fermé le 2026-09-17
+
+- Sélecteur − / + sur la fiche produit (maximum 10 − unités déjà au panier, mention « Déjà N dans votre panier », blocage et message « 10 maximum par produit » à 10). `addItem` accepte une quantité, plafonnée à 10.
+- Toast écrit à la main : quantité réellement ajoutée, nom du produit, lien « Voir le panier », visible 7 secondes, relancé à chaque ajout, annoncé via aria-live.
+- Header : montant total au format français, masqué quand le panier est vide, calculé depuis les prix fournis par le layout.
+- Lint : 0 problème. Règle `react-hooks/set-state-in-effect` désactivée localement sur l'effet d'hydratation de `cart-context.tsx` (chantier U), justifiée par la lecture de `localStorage` au montage ; comportement inchangé.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ajout de N unités, plafond à 7 puis 10, toast et relance, montant du header, rechargement ; non-régression des tests 1, 3 et 7 de U. Écran 2 de `WIREFRAME.md` mis à jour.
