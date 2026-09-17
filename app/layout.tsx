@@ -8,6 +8,7 @@ import { CartToast } from "@/components/cart-toast";
 import { DemoBanner } from "@/components/demo-banner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { PageTransition } from "@/components/page-transition";
 
 // Titres : serif espacée. Corps : sans-serif discrète. Voir globals.css pour
 // leur exposition comme jetons de thème Tailwind (font-serif / font-sans).
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <CartProvider products={products}>
           <DemoBanner />
           <Header />
-          {children}
+          <PageTransition>{children}</PageTransition>
           <Footer />
           <CartToast />
         </CartProvider>
