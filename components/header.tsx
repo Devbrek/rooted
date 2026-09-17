@@ -11,48 +11,31 @@ const currencyFormatter = new Intl.NumberFormat("fr-FR", {
   currency: "EUR",
 });
 
-function HeaderNav({
-  itemCount,
-  total,
-  transparent,
-}: {
-  itemCount: number;
-  total: number;
-  transparent: boolean;
-}) {
-  const linkColorClasses = transparent
-    ? "text-white hover:text-white/80"
-    : "text-foreground hover:text-secondary";
-  const linkTransitionClasses =
-    "transition-colors duration-300 ease-out motion-reduce:transition-none";
-
+function MenuIcon({ open }: { open: boolean }) {
   return (
-    <>
-      <div className="flex items-center gap-4">
-        <Link href="/">
-          <Image
-            src={transparent ? "/rootedWhite2.svg" : "/rooted2.svg"}
-            alt="Rooted"
-            width={40}
-            height={44}
-            className="h-12 w-auto"
-          />
-        </Link>
-        <Link
-          href="/"
-          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
-        >
-          Catalogue
-        </Link>
-      </div>
-      <Link
-        href="/panier"
-        className={`flex items-center gap-2 text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
-      >
-        <span>Panier ({itemCount})</span>
-        {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
-      </Link>
-    </>
+    <svg
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      {open ? (
+        <>
+          <line x1="6" y1="6" x2="18" y2="18" />
+          <line x1="18" y1="6" x2="6" y2="18" />
+        </>
+      ) : (
+        <>
+          <line x1="4" y1="7" x2="20" y2="7" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="17" x2="20" y2="17" />
+        </>
+      )}
+    </svg>
   );
 }
 
@@ -66,6 +49,13 @@ export function Header() {
     0,
   );
   const [pastHero, setPastHero] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setMenuOpen(false);
+  }
 
   useEffect(() => {
     if (!isHome) {
@@ -82,20 +72,99 @@ export function Header() {
     return () => observer.disconnect();
   }, [isHome]);
 
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
+
   const transparent = isHome && !pastHero;
   const surfaceClasses = transparent
     ? "bg-transparent border-white/10"
     : "bg-white border-accent/30";
+  const linkColorClasses = transparent
+    ? "text-white hover:text-white/80"
+    : "text-foreground hover:text-secondary";
+  const linkTransitionClasses =
+    "transition-colors duration-300 ease-out motion-reduce:transition-none";
+  const iconColorClasses = transparent ? "text-white" : "text-foreground";
 
   return (
     <header
       className={`sticky top-0 z-40 flex h-20 items-center justify-between border-b px-6 transition-colors duration-300 ease-out motion-reduce:transition-none ${surfaceClasses}`}
     >
-      <HeaderNav
-        itemCount={itemCount}
-        total={total}
-        transparent={transparent}
-      />
+      <div className="flex items-center gap-4">
+        <Link href="/">
+          <Image
+            src={transparent ? "/RsoloWhite.svg" : "/Rsolo.svg"}
+            alt="Rooted"
+            width={42}
+            height={40}
+            className="h-10 w-auto sm:hidden"
+          />
+          <Image
+            src={transparent ? "/rootedWhite2.svg" : "/rooted2.svg"}
+            alt="Rooted"
+            width={40}
+            height={44}
+            className="hidden h-12 w-auto sm:block"
+          />
+        </Link>
+        <Link
+          href="/"
+          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          Catalogue
+        </Link>
+      </div>
+
+      <Link
+        href="/panier"
+        className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${linkColorClasses}`}
+      >
+        <span>Panier ({itemCount})</span>
+        {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
+      </Link>
+
+      <button
+        type="button"
+        onClick={() => setMenuOpen((open) => !open)}
+        aria-expanded={menuOpen}
+        aria-controls="mobile-menu"
+        aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        className={`sm:hidden ${iconColorClasses}`}
+      >
+        <MenuIcon open={menuOpen} />
+      </button>
+
+      <div
+        id="mobile-menu"
+        hidden={!menuOpen}
+        className="absolute inset-x-0 top-full flex flex-col gap-1 border-b border-accent/30 bg-white px-6 py-4 sm:hidden"
+      >
+        <Link
+          href="/"
+          onClick={() => setMenuOpen(false)}
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Catalogue
+        </Link>
+        <Link
+          href="/panier"
+          onClick={() => setMenuOpen(false)}
+          className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          <span>Panier ({itemCount})</span>
+          {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
+        </Link>
+      </div>
     </header>
   );
 }
