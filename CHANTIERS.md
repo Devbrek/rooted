@@ -79,13 +79,20 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
 - Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
 
-### V — Ajout au panier depuis la fiche produit
+### V — Ajout au panier depuis la fiche produit et montant dans le header
 
-- Sélecteur de quantité sur la fiche produit, ajout de plusieurs unités en un clic, sans passer par la page panier.
-- Notification temporaire (toast) confirmant l'ajout : nom du produit, quantité ajoutée, lien vers le panier. Disparition automatique. Composant écrit à la main, sans dépendance ajoutée.
-- Dépend de U (plafond côté panier et `cart-context.tsx`) : le sélecteur respecte le plafond de 10 par produit, en tenant compte des unités déjà présentes dans le panier. Comportement au-delà du plafond à définir avant le chantier.
+- Sélecteur de quantité sur la fiche produit : nombre d'unités à ajouter. Si le produit est déjà au panier, mention « Déjà N dans votre panier » ; maximum du sélecteur = 10 − N ; si N = 10, bouton d'ajout désactivé et message « 10 maximum par produit ». Réutilise MAX_QUANTITY et le plafond de `cart-context.tsx` (chantier U).
+- Toast écrit à la main, sans dépendance : nom du produit, quantité ajoutée, lien « Voir le panier ». Disparition après 4 secondes. Bas à droite en desktop, bas pleine largeur en mobile. Annoncé via aria-live="polite".
+- Header : compteur d'articles suivi du montant total du panier, format français (ex. 78,00 €), calculé depuis les prix fournis par le layout (jamais depuis le stockage).
 - Mise à jour de l'écran 2 de `WIREFRAME.md` incluse.
-- Critère d'acceptation : ajout de N unités (1 ≤ N ≤ 10) reflété dans le compteur du header et la page panier ; impossible de dépasser 10 unités cumulées pour un produit ; toast affiché à chaque ajout puis disparu ; testé manuellement en desktop et mobile.
+- Critères d'acceptation (tests manuels par Ben sur `pnpm build` + `pnpm start`, desktop et mobile ; curl ne prouve rien ici) :
+  - Ajout de N unités (1 ≤ N ≤ 10) → compteur, montant du header et page panier mis à jour.
+  - Produit déjà à 7 → sélecteur limité à 3 ; produit à 10 → bouton désactivé, message affiché.
+  - Toast affiché à chaque ajout avec le bon nom et la bonne quantité, puis disparu ; le lien mène au panier.
+  - Montant du header égal au total de la page panier, au format 78,00 €, et à 0,00 € ou masqué quand le panier est vide (choix à montrer dans le plan).
+  - Rechargement → montant du header conservé (persistance U).
+  - Non-régression : tests 1, 3 et 7 de U.
+- Hors périmètre (signalé) : format des montants sur les autres pages (`78.00 €`), navbar fixe au défilement (chantier M).
 
 ### W — Formulaire de livraison et de facturation validé
 
