@@ -44,8 +44,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <CartProvider products={products}>
           <FavoritesProvider productIds={products.map((product) => product.id)}>
-            <DemoBanner />
+            {/*
+              Header en premier : il doit toujours être exactement en haut de
+              l'écran, dès le premier rendu, sans être repoussé par le
+              bandeau de démonstration (non collant, sous le header).
+            */}
             <Header />
+            <DemoBanner />
             <PageTransition>{children}</PageTransition>
             <Footer />
             <CartToast />
