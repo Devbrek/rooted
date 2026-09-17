@@ -22,16 +22,30 @@ export function ReviewCarousel({ reviews }: { reviews: Review[] }) {
     return () => clearInterval(timer);
   }, [reviews.length]);
 
-  const review = reviews[index];
-
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <StarRating rating={review.rating} />
-      <p className="font-sans text-foreground">{review.text}</p>
-      <p className="font-serif text-sm text-secondary">{review.author}</p>
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-full overflow-hidden">
+        <div
+          className="flex transition-transform duration-700 ease-in-out motion-reduce:transition-none"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
+          {reviews.map((review) => (
+            <div
+              key={`${review.author}-${review.text}`}
+              className="flex w-full shrink-0 flex-col items-center gap-3 px-2 text-center"
+            >
+              <StarRating rating={review.rating} />
+              <p className="font-sans text-foreground">{review.text}</p>
+              <p className="font-serif text-sm text-secondary">
+                {review.author}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {reviews.length > 1 ? (
-        <div className="mt-2 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {reviews.map((_, dotIndex) => (
             <button
               key={dotIndex}
@@ -39,7 +53,7 @@ export function ReviewCarousel({ reviews }: { reviews: Review[] }) {
               onClick={() => setIndex(dotIndex)}
               aria-label={`Avis ${dotIndex + 1} sur ${reviews.length}`}
               aria-current={dotIndex === index}
-              className={`h-2 w-2 rounded-full ${
+              className={`h-2 w-2 rounded-full transition-colors ${
                 dotIndex === index ? "bg-secondary" : "bg-accent/40"
               }`}
             />
