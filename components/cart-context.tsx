@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 const STORAGE_KEY = "rooted-cart-v1";
 export const MAX_QUANTITY = 10;
@@ -23,12 +30,19 @@ type StoredCartItem = {
   quantity: number;
 };
 
+export type LastAddedItem = {
+  name: string;
+  quantity: number;
+  key: number;
+};
+
 type CartContextValue = {
   items: CartItem[];
-  addItem: (product: CartProduct) => void;
+  addItem: (product: CartProduct, quantity?: number) => void;
   removeItem: (productId: string) => void;
   setQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  lastAdded: LastAddedItem | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -37,7 +51,10 @@ function isStoredCartItem(value: unknown): value is StoredCartItem {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  const { productId, quantity } = value as { productId?: unknown; quantity?: unknown };
+  const { productId, quantity } = value as {
+    productId?: unknown;
+    quantity?: unknown;
+  };
   return (
     typeof productId === "string" &&
     productId.length > 0 &&
@@ -97,6 +114,8 @@ export function CartProvider({
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [lastAdded, setLastAdded] = useState<LastAddedItem | null>(null);
+  const nextToastKeyRef = useRef(0);
 
   useEffect(() => {
     const stored = readStoredItems();
@@ -105,7 +124,9 @@ export function CartProvider({
       if (restored.some((item) => item.productId === entry.productId)) {
         continue;
       }
-      const product = products.find((candidate) => candidate.id === entry.productId);
+      const product = products.find(
+        (candidate) => candidate.id === entry.productId,
+      );
       if (product) {
         restored.push({
           productId: product.id,
@@ -115,8 +136,10 @@ export function CartProvider({
         });
       }
     }
+    /* eslint-disable react-hooks/set-state-in-effect -- lecture de localStorage au montage, synchronisation avec un système externe */
     setItems(restored);
     setHydrated(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
     // Ne doit s'exécuter qu'une fois, à l'hydratation initiale du stockage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -128,25 +151,50 @@ export function CartProvider({
     writeStoredItems(items);
   }, [items, hydrated]);
 
-  function addItem(product: CartProduct) {
+  function addItem(product: CartProduct, quantity: number = 1) {
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return;
+    }
+
+    const existing = items.find((item) => item.productId === product.id);
+    const currentQuantity = existing?.quantity ?? 0;
+    const nextQuantity = Math.min(currentQuantity + quantity, MAX_QUANTITY);
+    const added = nextQuantity - currentQuantity;
+    if (added <= 0) {
+      return;
+    }
+
     setItems((current) => {
-      const existing = current.find((item) => item.productId === product.id);
       if (existing) {
         return current.map((item) =>
           item.productId === product.id
-            ? { ...item, quantity: Math.min(item.quantity + 1, MAX_QUANTITY) }
-            : item
+            ? { ...item, quantity: nextQuantity }
+            : item,
         );
       }
       return [
         ...current,
-        { productId: product.id, name: product.name, price: product.price, quantity: 1 },
+        {
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: added,
+        },
       ];
+    });
+
+    nextToastKeyRef.current += 1;
+    setLastAdded({
+      name: product.name,
+      quantity: added,
+      key: nextToastKeyRef.current,
     });
   }
 
   function removeItem(productId: string) {
-    setItems((current) => current.filter((item) => item.productId !== productId));
+    setItems((current) =>
+      current.filter((item) => item.productId !== productId),
+    );
   }
 
   function setQuantity(productId: string, quantity: number) {
@@ -156,8 +204,8 @@ export function CartProvider({
     const clamped = Math.min(quantity, MAX_QUANTITY);
     setItems((current) =>
       current.map((item) =>
-        item.productId === productId ? { ...item, quantity: clamped } : item
-      )
+        item.productId === productId ? { ...item, quantity: clamped } : item,
+      ),
     );
   }
 
@@ -172,7 +220,7 @@ export function CartProvider({
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, setQuantity, clearCart }}
+      value={{ items, addItem, removeItem, setQuantity, clearCart, lastAdded }}
     >
       {children}
     </CartContext.Provider>
