@@ -43,11 +43,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Développer le contenu de la section (structure et texte), dans le ton validé.
 - Critère d'acceptation : section enrichie, textes validés avant intégration, cohérents avec la mention du chantier I.
 
-### M — Navigation et logo
-
-- Navbar complétée, fixée en haut au défilement une fois le hero dépassé ; logo davantage mis en avant.
-- Critère d'acceptation : comportement au défilement vérifié en desktop et mobile, navigation fonctionnelle sur les 5 écrans.
-
 ### N — Formulaire de contact et inscription mail (factices)
 
 - Formulaire de contact et champ d'inscription à une newsletter, sans envoi ni collecte réelle.
@@ -162,3 +157,9 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Header : montant total au format français, masqué quand le panier est vide, calculé depuis les prix fournis par le layout.
 - Lint : 0 problème. Règle `react-hooks/set-state-in-effect` désactivée localement sur l'effet d'hydratation de `cart-context.tsx` (chantier U), justifiée par la lecture de `localStorage` au montage ; comportement inchangé.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ajout de N unités, plafond à 7 puis 10, toast et relance, montant du header, rechargement ; non-régression des tests 1, 3 et 7 de U. Écran 2 de `WIREFRAME.md` mis à jour.
+
+### M — Navigation et logo — fermé le 2026-09-17
+
+- Accueil : header à sa place normale en haut de page ; une fois le hero dépassé (IntersectionObserver, sans dépendance), une barre fixe apparaît en fondu avec glissement (300 ms), masquée et non focusable tant que le hero est visible, sans animation si l'utilisateur réduit les mouvements. Autres pages : header collant (`sticky top-0`).
+- Logo agrandi d'un cran, proportions conservées.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : apparition et disparition de la barre au passage du hero sur l'accueil, header collant sur les 4 autres écrans, liens et compteur fonctionnels, toast visible au-dessus du header.
