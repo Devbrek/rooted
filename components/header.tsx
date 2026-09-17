@@ -87,7 +87,10 @@ export function Header() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
-  const transparent = isHome && !pastHero;
+  // Header forcé en blanc dès que le menu mobile est ouvert : sur le hero, un
+  // header resté transparent laissait la croix de fermeture (blanche) presque
+  // invisible sur une photo claire, juste au-dessus du panneau blanc du menu.
+  const transparent = isHome && !pastHero && !menuOpen;
   const surfaceClasses = transparent
     ? "bg-transparent border-white/10"
     : "bg-white border-accent/30";
@@ -136,31 +139,41 @@ export function Header() {
         </Link>
       </div>
 
-      <nav className="hidden flex-1 items-center justify-center gap-8 sm:flex">
+      <nav className="flex flex-1 items-center justify-center gap-8">
         <Link
           href="/"
-          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+          onClick={handleLogoClick}
+          className={`font-serif text-lg tracking-widest uppercase sm:hidden ${linkTransitionClasses} ${linkColorClasses}`}
         >
-          Catalogue
+          Rooted
         </Link>
-        <Link
-          href="/blog"
-          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
-        >
-          Blog
-        </Link>
-        <Link
-          href="/contact"
-          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
-        >
-          Contact
-        </Link>
-        <Link
-          href="/boutiques"
-          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
-        >
-          Boutiques
-        </Link>
+
+        <div className="hidden items-center gap-8 sm:flex">
+          <Link
+            href="/"
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+          >
+            Catalogue
+          </Link>
+          <Link
+            href="/blog"
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+          >
+            Blog
+          </Link>
+          <Link
+            href="/contact"
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+          >
+            Contact
+          </Link>
+          <Link
+            href="/boutiques"
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+          >
+            Boutiques
+          </Link>
+        </div>
       </nav>
 
       <div className="flex flex-1 items-center justify-end gap-4">
@@ -195,52 +208,64 @@ export function Header() {
 
       <div
         id="mobile-menu"
-        hidden={!menuOpen}
-        className="absolute inset-x-0 top-full flex flex-col gap-1 border-b border-accent/30 bg-white px-6 py-4 sm:hidden"
+        aria-hidden={menuOpen ? undefined : true}
+        inert={menuOpen ? undefined : true}
+        className={`fixed inset-x-0 top-20 bottom-0 z-40 flex flex-col items-center justify-center gap-8 bg-white px-6 transition-all duration-300 ease-out motion-reduce:transition-none sm:hidden ${
+          menuOpen
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-4 opacity-0"
+        }`}
       >
-        <Link
-          href="/"
-          onClick={() => setMenuOpen(false)}
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          Catalogue
-        </Link>
-        <Link
-          href="/blog"
-          onClick={() => setMenuOpen(false)}
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          Blog
-        </Link>
-        <Link
-          href="/contact"
-          onClick={() => setMenuOpen(false)}
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          Contact
-        </Link>
-        <Link
-          href="/boutiques"
-          onClick={() => setMenuOpen(false)}
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          Boutiques
-        </Link>
-        <Link
-          href="/favoris"
-          onClick={() => setMenuOpen(false)}
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          Favoris ({favoriteIds.length})
-        </Link>
-        <Link
-          href="/panier"
-          onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
-        >
-          <span>Panier ({itemCount})</span>
-          {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
-        </Link>
+        <div className="flex flex-col items-center gap-6">
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            Catalogue
+          </Link>
+          <Link
+            href="/blog"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            Blog
+          </Link>
+          <Link
+            href="/contact"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            Contact
+          </Link>
+          <Link
+            href="/boutiques"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            Boutiques
+          </Link>
+        </div>
+
+        <div className="flex flex-col items-center gap-6">
+          <Link
+            href="/favoris"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            Favoris ({favoriteIds.length})
+          </Link>
+          <Link
+            href="/panier"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          >
+            <span>Panier ({itemCount})</span>
+            {itemCount > 0 ? (
+              <span>{currencyFormatter.format(total)}</span>
+            ) : null}
+          </Link>
+        </div>
       </div>
     </header>
   );
