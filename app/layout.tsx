@@ -5,6 +5,7 @@ import "./globals.css";
 import { prisma } from "@/lib/prisma";
 import { CartProvider } from "@/components/cart-context";
 import { CartToast } from "@/components/cart-toast";
+import { FavoritesProvider } from "@/components/favorites-context";
 import { DemoBanner } from "@/components/demo-banner";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -42,11 +43,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <CartProvider products={products}>
-          <DemoBanner />
-          <Header />
-          <PageTransition>{children}</PageTransition>
-          <Footer />
-          <CartToast />
+          <FavoritesProvider productIds={products.map((product) => product.id)}>
+            <DemoBanner />
+            <Header />
+            <PageTransition>{children}</PageTransition>
+            <Footer />
+            <CartToast />
+          </FavoritesProvider>
         </CartProvider>
       </body>
     </html>
