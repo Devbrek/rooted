@@ -164,3 +164,8 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Bandeau « Site de démonstration : boutique, produits et paiement fictifs. Aucun achat réel, rien ne sera débité. » monté dans le layout, présent sur les 5 écrans (vérifié par curl sur le HTML servi, contrôle de l'outil inclus, et visuellement par Ben en desktop et mobile).
 - Encart sur `/commande` au-dessus du bouton « Payer » : carte de test 4242 4242 4242 4242, date future, code à 3 chiffres, informations fictives uniquement. Vérifié visuellement par Ben (composant client : non vérifiable par curl, qui ne voit que le panier vide).
 - Débloque N, P, Q, R et W.
+
+### X — Bandeau fin sur la confirmation — fermé le 2026-09-17
+
+- Photo pleine hauteur de `/confirmation` remplacée par `ThinBanner` (même gabarit que le panier et le checkout) : message de confirmation visible sans défilement. Écran 5 de `WIREFRAME.md` mis à jour.
+- Vérifié visuellement par Ben sur `pnpm build` + `pnpm start`, desktop et mobile, avec une session payée.
