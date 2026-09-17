@@ -1,20 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { ThinBanner } from "@/components/thin-banner";
 import { getProductImage } from "@/lib/product-images";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FieldErrors = {
+  nom?: string;
+  email?: string;
+  adresse?: string;
+};
+
 export default function CheckoutPage() {
   const { items } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const formRef = useRef<HTMLFormElement>(null);
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  // Le bouton "Payer" n'est pas un submit du formulaire (il déclenche l'appel
+  // Stripe séparément) : la validation "required" native ne se déclenche
+  // jamais toute seule, d'où cette vérification manuelle avant tout appel.
+  function validateFields(): FieldErrors {
+    const form = formRef.current;
+    if (!form) {
+      return {};
+    }
+    const data = new FormData(form);
+    const nom = String(data.get("nom") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const adresse = String(data.get("adresse") ?? "").trim();
+
+    const errors: FieldErrors = {};
+    if (!nom) {
+      errors.nom = "Le nom est obligatoire.";
+    }
+    if (!email) {
+      errors.email = "L'email est obligatoire.";
+    } else if (!EMAIL_PATTERN.test(email)) {
+      errors.email = "Le format de l'email n'est pas valide.";
+    }
+    if (!adresse) {
+      errors.adresse = "L'adresse est obligatoire.";
+    }
+    return errors;
+  }
+
   async function handlePayer() {
+    const errors = validateFields();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
@@ -66,39 +110,73 @@ export default function CheckoutPage() {
             (hors périmètre chantier E). Conservés tels quels selon le WIREFRAME.
           */}
           <form
+            ref={formRef}
             onSubmit={(event) => event.preventDefault()}
+            noValidate
             className="flex flex-col gap-4"
           >
-            <label htmlFor="nom" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-              Nom
-              <input
-                id="nom"
-                name="nom"
-                type="text"
-                autoComplete="name"
-                className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
-              />
-            </label>
-            <label htmlFor="email" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-              Email
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
-              />
-            </label>
-            <label htmlFor="adresse" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-              Adresse
-              <input
-                id="adresse"
-                name="adresse"
-                type="text"
-                autoComplete="street-address"
-                className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
-              />
-            </label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="nom" className="flex flex-col gap-1 font-sans text-sm text-foreground">
+                Nom
+                <input
+                  id="nom"
+                  name="nom"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  aria-invalid={Boolean(fieldErrors.nom)}
+                  aria-describedby={fieldErrors.nom ? "nom-error" : undefined}
+                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+                />
+              </label>
+              {fieldErrors.nom ? (
+                <p id="nom-error" className="font-sans text-sm text-secondary">
+                  {fieldErrors.nom}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="email" className="flex flex-col gap-1 font-sans text-sm text-foreground">
+                Email
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+                />
+              </label>
+              {fieldErrors.email ? (
+                <p id="email-error" className="font-sans text-sm text-secondary">
+                  {fieldErrors.email}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="adresse" className="flex flex-col gap-1 font-sans text-sm text-foreground">
+                Adresse
+                <input
+                  id="adresse"
+                  name="adresse"
+                  type="text"
+                  autoComplete="street-address"
+                  required
+                  aria-invalid={Boolean(fieldErrors.adresse)}
+                  aria-describedby={fieldErrors.adresse ? "adresse-error" : undefined}
+                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+                />
+              </label>
+              {fieldErrors.adresse ? (
+                <p id="adresse-error" className="font-sans text-sm text-secondary">
+                  {fieldErrors.adresse}
+                </p>
+              ) : null}
+            </div>
           </form>
 
           <section aria-label="Récapitulatif de commande" className="bg-section px-6 py-8">
