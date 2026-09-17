@@ -9,7 +9,10 @@ import { getProductImage } from "@/lib/product-images";
 export default function CartPage() {
   const { items, removeItem, setQuantity } = useCart();
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   function handleQuantityChange(productId: string, rawValue: string) {
     const value = Number(rawValue);
@@ -85,7 +88,10 @@ export default function CartPage() {
                         max={MAX_QUANTITY}
                         value={item.quantity}
                         onChange={(event) =>
-                          handleQuantityChange(item.productId, event.target.value)
+                          handleQuantityChange(
+                            item.productId,
+                            event.target.value,
+                          )
                         }
                         className="w-16 border border-accent/40 bg-background px-2 py-1 text-center font-sans text-foreground"
                       />
@@ -98,7 +104,7 @@ export default function CartPage() {
                     <button
                       type="button"
                       onClick={() => removeItem(item.productId)}
-                      className="text-xs tracking-wide text-secondary uppercase transition-colors hover:text-foreground"
+                      className="text-xs tracking-wide text-red-500 uppercase transition-colors hover:text-foreground"
                     >
                       Supprimer
                     </button>
