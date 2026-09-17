@@ -38,11 +38,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Développer le contenu de la section (structure et texte), dans le ton validé.
 - Critère d'acceptation : section enrichie, textes validés avant intégration, cohérents avec la mention du chantier I.
 
-### Q — Emplacements de boutique factices
-
-- Carte affichant de faux points de vente (bibliothèque cartographique à décider — dépendance à valider explicitement).
-- Critère d'acceptation : caractère fictif explicite, dépendance validée avant installation.
-
 ### W — Formulaire de livraison et de facturation validé
 
 - Dépend de I : la mention « Projet démo : saisissez des informations fictives, rien n'est conservé » doit être affichée au-dessus du formulaire de `/commande`.
@@ -196,3 +191,13 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Bouton cœur (`favorite-button.tsx`, SVG écrit à la main, `aria-pressed`, libellé « Ajouter aux favoris » / « Retirer des favoris ») sur les cartes produit (catalogue, produits similaires, favoris) et sur la fiche produit. `ProductCard` restructuré pour que le bouton soit un frère du lien plutôt qu'un enfant (bouton imbriqué dans un `<a>` = HTML invalide).
 - Page `/favoris` (récupère tous les produits côté serveur, filtre côté client sur les `productId` favoris) avec état vide (« Vous n'avez pas encore de favoris » + retour catalogue). Lien « Favoris (N) » dans le header, desktop et menu mobile.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ajout/retrait, compteur, rechargement conservé, page `/favoris`, état vide, valeur corrompue dans `localStorage` sans plantage, non-régression du panier.
+
+### Q — Emplacements de boutique factices — fermé le 2026-09-17
+
+- Dépendances ajoutées, versions consignées : `leaflet@1.9.4`, `react-leaflet@5.0.0` (compatible React 19.2.8 du projet), `@types/leaflet@1.9.22` en dev.
+- Page `/boutiques` : carte chargée uniquement côté navigateur (`next/dynamic`, `ssr: false`, depuis un composant client séparé de la page serveur), CSS de Leaflet importé. Icône de marqueur en `divIcon` (SVG écrit à la main), pour éviter le problème connu des icônes par défaut de Leaflet sans ajouter d'image externe. Fond OpenStreetMap avec attribution visible.
+- Isolation du z-index : la carte est enfermée dans un conteneur `isolate`, pour que les z-index internes de Leaflet (jusqu'à ~1000 pour ses panneaux et contrôles) ne passent jamais au-dessus du header collant (z-40) ni du menu mobile.
+- 3 boutiques fictives (Rooted Paris, Rooted Lyon, Rooted Bordeaux) centrées sur des villes françaises, jamais une adresse réelle, avec horaires, téléphone et email fictifs (non cliquables, même logique que les icônes de réseaux sociaux du chantier R). Liste sous la carte, mention « Boutiques fictives » visible. Lien « Boutiques » dans le header.
+- Signalé : le fond de carte OpenStreetMap standard (`tile.openstreetmap.org`) est soumis à une politique d'usage stricte (attribution obligatoire, volumétrie limitée, User-Agent identifié) qui déconseille son usage direct pour un site public à trafic réel ; à remplacer par un fournisseur de tuiles géré (MapTiler, Mapbox, Stadia…) ou un hébergement de tuiles propre avant mise en production réelle.
+- Retouches sans lien direct avec ce chantier, demandées par Ben : clic sur le logo du header ramène en haut du hero même si la page est déjà l'accueil (un lien vers l'URL déjà active ne relance pas de navigation) ; champ de quantité du panier corrigé sur mobile (un état de saisie local remplace la liaison directe à la valeur clampée, qui empêchait de vider le champ) avec ajout de boutons − / + ; champs nom, email et adresse rendus obligatoires sur `/commande` avec validation avant l'appel Stripe (le bouton « Payer » n'étant pas un submit de formulaire).
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : carte affichée, marqueurs et popups avec contact, attribution visible, header au-dessus de la carte au défilement, menu mobile au-dessus de la carte.
