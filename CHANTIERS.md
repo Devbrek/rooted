@@ -43,11 +43,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Carte affichant de faux points de vente (bibliothèque cartographique à décider — dépendance à valider explicitement).
 - Critère d'acceptation : caractère fictif explicite, dépendance validée avant installation.
 
-### S — Produits en favoris
-
-- Possibilité de marquer des produits en favori (portée à définir : état client seul ou persistance).
-- Critère d'acceptation : ajout/retrait d'un favori reflété dans l'interface, comportement testé manuellement.
-
 ### W — Formulaire de livraison et de facturation validé
 
 - Dépend de I : la mention « Projet démo : saisissez des informations fictives, rien n'est conservé » doit être affichée au-dessus du formulaire de `/commande`.
@@ -194,3 +189,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Filtre côté navigateur sur la grille catalogue de l'accueil : boutons « Tout » + une catégorie chacun, état actif visible (fond `accent`), `aria-pressed`. État vide géré : « Aucun produit dans cette catégorie » + bouton « Voir tout ».
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : chaque filtre réduit la liste, « Tout » la rétablit, état actif visible, navigation clavier.
 - Retouche sans lien avec ce chantier, faite directement par Ben : délai de rotation du carrousel d'avis (chantier P) ajusté à 4,5 s dans `components/review-carousel.tsx`.
+
+### S — Produits en favoris — fermé le 2026-09-17
+
+- Contexte `favorites-context.tsx` : persistance `localStorage` (clé `rooted-favorites-v1`, tableau de `productId` uniquement), relecture défensive (JSON invalide, non tableau, doublons, `productId` inconnu ignorés), jamais d'écriture avant lecture, clé supprimée quand la liste est vide (même principe que `cart-context.tsx`, chantier U). Monté dans `app/layout.tsx` avec la liste de produits déjà fournie au panier.
+- Bouton cœur (`favorite-button.tsx`, SVG écrit à la main, `aria-pressed`, libellé « Ajouter aux favoris » / « Retirer des favoris ») sur les cartes produit (catalogue, produits similaires, favoris) et sur la fiche produit. `ProductCard` restructuré pour que le bouton soit un frère du lien plutôt qu'un enfant (bouton imbriqué dans un `<a>` = HTML invalide).
+- Page `/favoris` (récupère tous les produits côté serveur, filtre côté client sur les `productId` favoris) avec état vide (« Vous n'avez pas encore de favoris » + retour catalogue). Lien « Favoris (N) » dans le header, desktop et menu mobile.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ajout/retrait, compteur, rechargement conservé, page `/favoris`, état vide, valeur corrompue dans `localStorage` sans plantage, non-régression du panier.
