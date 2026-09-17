@@ -11,13 +11,27 @@ const currencyFormatter = new Intl.NumberFormat("fr-FR", {
   currency: "EUR",
 });
 
-function HeaderNav({ itemCount, total }: { itemCount: number; total: number }) {
+function HeaderNav({
+  itemCount,
+  total,
+  transparent,
+}: {
+  itemCount: number;
+  total: number;
+  transparent: boolean;
+}) {
+  const linkColorClasses = transparent
+    ? "text-white hover:text-white/80"
+    : "text-foreground hover:text-secondary";
+  const linkTransitionClasses =
+    "transition-colors duration-300 ease-out motion-reduce:transition-none";
+
   return (
     <>
       <div className="flex items-center gap-4">
         <Link href="/">
           <Image
-            src="/rooted.png"
+            src={transparent ? "/rootedWhite2.svg" : "/rooted2.svg"}
             alt="Rooted"
             width={40}
             height={44}
@@ -26,14 +40,14 @@ function HeaderNav({ itemCount, total }: { itemCount: number; total: number }) {
         </Link>
         <Link
           href="/"
-          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
         >
           Catalogue
         </Link>
       </div>
       <Link
         href="/panier"
-        className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        className={`flex items-center gap-2 text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
       >
         <span>Panier ({itemCount})</span>
         {itemCount > 0 ? <span>{currencyFormatter.format(total)}</span> : null}
@@ -47,7 +61,10 @@ export function Header() {
   const isHome = pathname === "/";
   const { items } = useCart();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
   const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
@@ -65,30 +82,20 @@ export function Header() {
     return () => observer.disconnect();
   }, [isHome]);
 
-  if (isHome) {
-    const fixedBarStateClasses = pastHero
-      ? "translate-y-0 opacity-100"
-      : "pointer-events-none -translate-y-full opacity-0";
-
-    return (
-      <>
-        <header className="flex items-center justify-between border-b border-accent/30 bg-background px-6 py-4">
-          <HeaderNav itemCount={itemCount} total={total} />
-        </header>
-        <div
-          aria-hidden={pastHero ? undefined : true}
-          inert={pastHero ? undefined : true}
-          className={`fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-accent/30 bg-background px-6 py-4 transition-all duration-300 ease-out motion-reduce:transition-none ${fixedBarStateClasses}`}
-        >
-          <HeaderNav itemCount={itemCount} total={total} />
-        </div>
-      </>
-    );
-  }
+  const transparent = isHome && !pastHero;
+  const surfaceClasses = transparent
+    ? "bg-transparent border-white/10"
+    : "bg-white border-accent/30";
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-accent/30 bg-background px-6 py-4">
-      <HeaderNav itemCount={itemCount} total={total} />
+    <header
+      className={`sticky top-0 z-40 flex h-20 items-center justify-between border-b px-6 transition-colors duration-300 ease-out motion-reduce:transition-none ${surfaceClasses}`}
+    >
+      <HeaderNav
+        itemCount={itemCount}
+        total={total}
+        transparent={transparent}
+      />
     </header>
   );
 }
