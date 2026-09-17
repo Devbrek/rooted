@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { StarRating } from "@/components/star-rating";
 import type { Review } from "@/lib/reviews";
 
-const ROTATION_INTERVAL_MS = 2500;
+const ROTATION_INTERVAL_MS = 4500;
 
 export function ReviewCarousel({ reviews }: { reviews: Review[] }) {
   const [index, setIndex] = useState(0);
