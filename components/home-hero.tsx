@@ -4,7 +4,7 @@ export function HomeHero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+      className="relative -mt-20 flex min-h-screen items-center justify-center overflow-hidden"
     >
       <Image
         src="/hero.jpg"
