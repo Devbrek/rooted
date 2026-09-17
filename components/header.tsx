@@ -123,6 +123,12 @@ export function Header() {
         >
           Catalogue
         </Link>
+        <Link
+          href="/contact"
+          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          Contact
+        </Link>
       </div>
 
       <Link
@@ -155,6 +161,13 @@ export function Header() {
           className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
         >
           Catalogue
+        </Link>
+        <Link
+          href="/contact"
+          onClick={() => setMenuOpen(false)}
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Contact
         </Link>
         <Link
           href="/panier"
