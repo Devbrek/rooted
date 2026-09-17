@@ -3,6 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { ProductMaterialCare } from "@/components/product-material-care";
+import { ProductReviews } from "@/components/product-reviews";
 import { SimilarProducts } from "@/components/similar-products";
 import { getProductImage } from "@/lib/product-images";
 import { getProductCare } from "@/lib/product-care";
@@ -69,6 +70,8 @@ export default async function ProductPage({ params }: PageProps<"/produits/[id]"
       </section>
 
       {care ? <ProductMaterialCare care={care} /> : null}
+
+      <ProductReviews productId={product.id} />
 
       <SimilarProducts products={similarProducts} />
     </main>
