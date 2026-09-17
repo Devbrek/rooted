@@ -43,12 +43,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Développer le contenu de la section (structure et texte), dans le ton validé.
 - Critère d'acceptation : section enrichie, textes validés avant intégration, cohérents avec la mention du chantier I.
 
-### N — Formulaire de contact et inscription mail (factices)
-
-- Page dédiée `/contact` regroupant le formulaire de contact et l'inscription newsletter, avec lien « Contact » dans le header.
-- Formulaire de contact et champ d'inscription à une newsletter, sans envoi ni collecte réelle.
-- Critère d'acceptation : aucune donnée personnelle réellement stockée ni transmise ; caractère factice explicite à l'écran.
-
 ### P — Avis clients factices
 
 - Avis avec notation en étoiles, contenu fictif.
@@ -184,3 +178,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Logo distinct sous `sm` : `Rsolo.svg` / `RsoloWhite.svg` (le « R » seul) ; à partir de `sm`, `rooted2.svg` / `rootedWhite2.svg` inchangés. Desktop non modifié par ailleurs (liens directs dans le header, pas de bouton menu).
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : ouverture/fermeture, Échap, clic sur un lien, lisibilité sur le hero, navigation au clavier, logo « R » sur petit écran, desktop inchangé.
 - Limites connues : pas de piégeage de focus (focus trap) dans le panneau au-delà de la fermeture par Échap ; pas de blocage du défilement de la page derrière le panneau ouvert.
+
+### N — Formulaire de contact et inscription mail (factices) — fermé le 2026-09-17
+
+- Page `/contact` : formulaire de contact (prénom, email, message) et formulaire d'inscription newsletter (email), chacun avec sa propre validation côté navigateur (champs obligatoires, format d'email), erreurs affichées sous chaque champ (`aria-invalid`, `aria-describedby`).
+- À l'envoi d'un formulaire valide : aucune requête réseau, aucune donnée stockée, champs réinitialisés, message « Site de démonstration : aucun message n'est envoyé ni conservé. » affiché. Mention factice permanente au-dessus des deux formulaires.
+- Lien « Contact » ajouté dans le header, desktop et menu mobile (chantier M-ter).
+- Vérification : `grep` sur `app/contact/page.tsx` et `components/header.tsx` montrant 0 occurrence de `fetch(`, `localStorage` et `console.log`, avec contrôle positif sur `handleContactSubmit`.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : erreurs de validation affichées, message de démonstration après envoi valide, onglet Network vide lors de l'envoi, lien du header fonctionnel.
