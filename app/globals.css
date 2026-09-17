@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Défilement fluide pour les liens d'ancrage (ex. "Découvrir la collection"
+   du hero vers #catalogue). */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /*
  * Direction artistique Rooted (chantier E-bis).
  * Couleurs et polices déclarées ici comme jetons de thème Tailwind, pour que
