@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { useCart } from "@/components/cart-context";
 import { useFavorites } from "@/components/favorites-context";
 
@@ -98,12 +98,27 @@ export function Header() {
     "transition-colors duration-300 ease-out motion-reduce:transition-none";
   const iconColorClasses = transparent ? "text-white" : "text-foreground";
 
+  function handleLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (!isHome) {
+      return;
+    }
+    // Un Link vers l'URL déjà active ne relance pas de navigation (donc pas
+    // de retour en haut) : on le fait nous-mêmes plutôt que de laisser le
+    // clic sans effet quand le hero a défilé hors de vue.
+    event.preventDefault();
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches
+      ? "auto"
+      : "smooth";
+    window.scrollTo({ top: 0, behavior });
+  }
+
   return (
     <header
       className={`sticky top-0 z-40 flex h-20 items-center border-b px-6 transition-colors duration-300 ease-out motion-reduce:transition-none ${surfaceClasses}`}
     >
       <div className="flex flex-1 items-center">
-        <Link href="/">
+        <Link href="/" onClick={handleLogoClick}>
           <Image
             src={transparent ? "/RsoloWhite.svg" : "/Rsolo.svg"}
             alt="Rooted"
@@ -139,6 +154,12 @@ export function Header() {
           className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
         >
           Contact
+        </Link>
+        <Link
+          href="/boutiques"
+          className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          Boutiques
         </Link>
       </nav>
 
@@ -197,6 +218,13 @@ export function Header() {
           className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
         >
           Contact
+        </Link>
+        <Link
+          href="/boutiques"
+          onClick={() => setMenuOpen(false)}
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Boutiques
         </Link>
         <Link
           href="/favoris"
