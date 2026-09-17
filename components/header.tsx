@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/components/cart-context";
+import { useFavorites } from "@/components/favorites-context";
 
 const currencyFormatter = new Intl.NumberFormat("fr-FR", {
   style: "currency",
@@ -43,6 +44,7 @@ export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { items } = useCart();
+  const { favoriteIds } = useFavorites();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -142,6 +144,13 @@ export function Header() {
 
       <div className="flex flex-1 items-center justify-end gap-4">
         <Link
+          href="/favoris"
+          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+        >
+          Favoris ({favoriteIds.length})
+        </Link>
+
+        <Link
           href="/panier"
           className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${linkColorClasses}`}
         >
@@ -188,6 +197,13 @@ export function Header() {
           className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
         >
           Contact
+        </Link>
+        <Link
+          href="/favoris"
+          onClick={() => setMenuOpen(false)}
+          className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+        >
+          Favoris ({favoriteIds.length})
         </Link>
         <Link
           href="/panier"
