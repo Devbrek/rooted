@@ -171,3 +171,8 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Accueil : header à sa place normale en haut de page ; une fois le hero dépassé (IntersectionObserver, sans dépendance), une barre fixe apparaît en fondu avec glissement (300 ms), masquée et non focusable tant que le hero est visible, sans animation si l'utilisateur réduit les mouvements. Autres pages : header collant (`sticky top-0`).
 - Logo agrandi d'un cran, proportions conservées.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : apparition et disparition de la barre au passage du hero sur l'accueil, header collant sur les 4 autres écrans, liens et compteur fonctionnels, toast visible au-dessus du header.
+
+### M-bis — Header transparent sur le hero — fermé le 2026-09-17
+
+- Remplace la seconde barre fixe du chantier M : un seul header collant, transparent (texte blanc, logo clair `rootedWhite2.svg`) posé sur le hero de l'accueil, qui devient blanc en fondu (300 ms, logo `rooted2.svg`) une fois le hero dépassé (IntersectionObserver, sans dépendance, sans animation si l'utilisateur réduit les mouvements). Autres pages : header blanc collant.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : passage transparent → blanc et retour sur l'accueil, lisibilité sur la photo, header blanc collant sur les 4 autres écrans, liens, compteur et toast fonctionnels.
