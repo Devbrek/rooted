@@ -45,6 +45,7 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ### N — Formulaire de contact et inscription mail (factices)
 
+- Page dédiée `/contact` regroupant le formulaire de contact et l'inscription newsletter, avec lien « Contact » dans le header.
 - Formulaire de contact et champ d'inscription à une newsletter, sans envoi ni collecte réelle.
 - Critère d'acceptation : aucune donnée personnelle réellement stockée ni transmise ; caractère factice explicite à l'écran.
 
@@ -85,6 +86,13 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - Non-régression : tous les critères de T repassent.
   - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
 - Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
+
+### Y — Blog factice
+
+- Page `/blog` (liste) et `/blog/[slug]` (article), lien « Blog » dans le header. 3 articles fictifs sur l'univers Rooted (ambiance, entretien des matières, rituels apaisants), écrits dans le ton validé, stockés dans un fichier de données du projet (pas de base, pas de CMS, pas de dépendance).
+- Aucune fausse allégation technique, santé ou commerciale ; aucun auteur réel ou identifiable ; mention « article fictif » visible sur chaque article (en plus du bandeau du chantier I). Photos libres de droit uniquement.
+- Critères d'acceptation : les 3 articles s'affichent depuis la liste ; slug inconnu → HTTP 404 (vérifié par curl, page serveur) ; lien « Blog » fonctionnel sur les 5 écrans ; textes validés par Ben avant intégration ; test visuel desktop et mobile.
+- Hors périmètre (signalé) : commentaires, recherche, pagination.
 
 ## Fermés
 
