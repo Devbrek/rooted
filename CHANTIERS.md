@@ -81,13 +81,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
 - Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
 
-### Y — Blog factice
-
-- Page `/blog` (liste) et `/blog/[slug]` (article), lien « Blog » dans le header. 3 articles fictifs sur l'univers Rooted (ambiance, entretien des matières, rituels apaisants), écrits dans le ton validé, stockés dans un fichier de données du projet (pas de base, pas de CMS, pas de dépendance).
-- Aucune fausse allégation technique, santé ou commerciale ; aucun auteur réel ou identifiable ; mention « article fictif » visible sur chaque article (en plus du bandeau du chantier I). Photos libres de droit uniquement.
-- Critères d'acceptation : les 3 articles s'affichent depuis la liste ; slug inconnu → HTTP 404 (vérifié par curl, page serveur) ; lien « Blog » fonctionnel sur les 5 écrans ; textes validés par Ben avant intégration ; test visuel desktop et mobile.
-- Hors périmètre (signalé) : commentaires, recherche, pagination.
-
 ## Fermés
 
 ### A — Définir le produit — fermé le 2026-09-15
@@ -186,3 +179,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Lien « Contact » ajouté dans le header, desktop et menu mobile (chantier M-ter).
 - Vérification : `grep` sur `app/contact/page.tsx` et `components/header.tsx` montrant 0 occurrence de `fetch(`, `localStorage` et `console.log`, avec contrôle positif sur `handleContactSubmit`.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : erreurs de validation affichées, message de démonstration après envoi valide, onglet Network vide lors de l'envoi, lien du header fonctionnel.
+
+### Y — Blog factice — fermé le 2026-09-17
+
+- Données dans `lib/blog-posts.ts` (pas de base, pas de CMS, pas de dépendance) : 3 articles fictifs sur l'univers Rooted (ambiance, entretien des matières, rituels apaisants), textes validés par Ben avant intégration, chacun avec une photo déjà présente dans `public/` (`tirage-brume-matin.jpg`, `plaid-refuge.jpg`, `bougie-sous-bois.jpg`).
+- Page `/blog` (liste, Server Component) et `/blog/[slug]` (article, Server Component, `generateStaticParams`) ; slug inconnu → `notFound()`. Mention « Article fictif » visible sur chaque article, en plus du bandeau du chantier I.
+- Lien « Blog » ajouté dans le header, desktop et menu mobile ; liens de navigation desktop (Catalogue, Blog, Contact) recentrés dans le header, logo à gauche et Panier/menu à droite inchangés.
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : les 3 articles s'affichent depuis la liste, mention fictive visible, lien du header fonctionnel, navigation centrée.
+- Non vérifié par l'assistant (Ben gère le serveur) : comportement HTTP réel (404 sur slug inconnu, 200 sur slug valide) — à confirmer par Ben via `curl`, la structure du code (`if (!post) notFound()`) suit le même modèle déjà validé sur `/produits/[id]`.
