@@ -33,11 +33,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Page dédiée sur devbrek.fr : schéma du flux agent, vidéo de démo, section limites connues.
 - Critère d'acceptation : page publiée, cohérente avec la règle "vrai et vérifiable".
 
-### K — Filtrage du catalogue
-
-- Système de filtrage des produits sur la page catalogue (critère de filtrage à définir — 5 produits seulement en base).
-- Critère d'acceptation : filtrer réduit effectivement la liste affichée, l'état vide est géré, testé manuellement.
-
 ### L — Enrichissement de la section "Notre démarche"
 
 - Développer le contenu de la section (structure et texte), dans le ton validé.
@@ -192,3 +187,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Vérification : `grep` sur `components/social-icons.tsx` montrant 0 occurrence de `href` et de `<a`, avec contrôle positif sur `role="img"`.
 - Retouches demandées après test : éléments du footer (navigation, icônes, mentions) recentrés ; transition douce (fondu, 300 ms, `prefers-reduced-motion` respecté) ajoutée au changement de page via un composant `PageTransition` monté dans `app/layout.tsx`, en remplacement du remplacement instantané du contenu au clic dans la navbar — changement transverse à toutes les pages, au-delà du seul périmètre de ce chantier.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : icônes visibles et non cliquables, hover visible, footer centré, transition de page fluide au clic sur un lien.
+
+### K — Filtrage du catalogue — fermé le 2026-09-17
+
+- Correspondance produit → catégorie dans `lib/product-categories.ts`, à partir des 5 produits réels en base : Bougie Sous-bois et Diffuseur Clairière → Ambiance ; Plaid Refuge et Coussin Mousse → Textile ; Tirage Brume du matin → Décoration murale. Base inchangée.
+- Filtre côté navigateur sur la grille catalogue de l'accueil : boutons « Tout » + une catégorie chacun, état actif visible (fond `accent`), `aria-pressed`. État vide géré : « Aucun produit dans cette catégorie » + bouton « Voir tout ».
+- Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : chaque filtre réduit la liste, « Tout » la rétablit, état actif visible, navigation clavier.
+- Retouche sans lien avec ce chantier, faite directement par Ben : délai de rotation du carrousel d'avis (chantier P) ajusté à 4,5 s dans `components/review-carousel.tsx`.
