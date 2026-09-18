@@ -19,6 +19,27 @@ export function Footer() {
         </Link>
       </nav>
 
+      <nav className="mt-4 flex gap-4">
+        <Link
+          href="/mentions-legales"
+          className="text-xs tracking-wide text-foreground/70 uppercase transition-colors hover:text-secondary"
+        >
+          Mentions légales
+        </Link>
+        <Link
+          href="/confidentialite"
+          className="text-xs tracking-wide text-foreground/70 uppercase transition-colors hover:text-secondary"
+        >
+          Confidentialité
+        </Link>
+        <Link
+          href="/cgv"
+          className="text-xs tracking-wide text-foreground/70 uppercase transition-colors hover:text-secondary"
+        >
+          CGV
+        </Link>
+      </nav>
+
       <div className="mt-6">
         <SocialIcons />
       </div>
