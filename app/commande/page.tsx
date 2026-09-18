@@ -6,59 +6,111 @@ import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { ThinBanner } from "@/components/thin-banner";
 import { getProductImage } from "@/lib/product-images";
+import { checkoutFormSchema, formatCheckoutFieldErrors } from "@/lib/checkout-form-schema";
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type FieldErrors = Record<string, string>;
 
-type FieldErrors = {
-  nom?: string;
-  email?: string;
-  adresse?: string;
-};
+function FormField({
+  id,
+  label,
+  type = "text",
+  autoComplete,
+  required,
+  maxLength,
+  error,
+  hint,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  autoComplete?: string;
+  required?: boolean;
+  maxLength?: number;
+  error?: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="flex flex-col gap-1 font-sans text-sm text-foreground">
+        {label}
+        <input
+          id={id}
+          name={id}
+          type={type}
+          autoComplete={autoComplete}
+          required={required}
+          maxLength={maxLength}
+          aria-invalid={Boolean(error)}
+          aria-describedby={
+            error ? `${id}-error` : hint ? `${id}-hint` : undefined
+          }
+          className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+        />
+      </label>
+      {hint && !error ? (
+        <p id={`${id}-hint`} className="font-sans text-xs text-foreground/60">
+          {hint}
+        </p>
+      ) : null}
+      {error ? (
+        <p id={`${id}-error`} className="font-sans text-sm text-secondary">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 export default function CheckoutPage() {
   const { items } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [facturationIdentique, setFacturationIdentique] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Le bouton "Payer" n'est pas un submit du formulaire (il déclenche l'appel
-  // Stripe séparément) : la validation "required" native ne se déclenche
-  // jamais toute seule, d'où cette vérification manuelle avant tout appel.
-  function validateFields(): FieldErrors {
+  function readForm() {
     const form = formRef.current;
-    if (!form) {
-      return {};
-    }
-    const data = new FormData(form);
-    const nom = String(data.get("nom") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const adresse = String(data.get("adresse") ?? "").trim();
+    const data = new FormData(form ?? undefined);
+    const get = (name: string) => String(data.get(name) ?? "");
 
-    const errors: FieldErrors = {};
-    if (!nom) {
-      errors.nom = "Le nom est obligatoire.";
+    const raw: Record<string, unknown> = {
+      facturationIdentique,
+      prenom: get("prenom"),
+      nom: get("nom"),
+      email: get("email"),
+      societe: get("societe"),
+      telephone: get("telephone"),
+      adresse: get("adresse"),
+      complement: get("complement"),
+      codePostal: get("codePostal"),
+      ville: get("ville"),
+      instructions: get("instructions"),
+    };
+
+    if (!facturationIdentique) {
+      raw.facturationPrenom = get("facturationPrenom");
+      raw.facturationNom = get("facturationNom");
+      raw.facturationAdresse = get("facturationAdresse");
+      raw.facturationComplement = get("facturationComplement");
+      raw.facturationCodePostal = get("facturationCodePostal");
+      raw.facturationVille = get("facturationVille");
     }
-    if (!email) {
-      errors.email = "L'email est obligatoire.";
-    } else if (!EMAIL_PATTERN.test(email)) {
-      errors.email = "Le format de l'email n'est pas valide.";
-    }
-    if (!adresse) {
-      errors.adresse = "L'adresse est obligatoire.";
-    }
-    return errors;
+
+    return raw;
   }
 
   async function handlePayer() {
-    const errors = validateFields();
-    setFieldErrors(errors);
-    if (Object.keys(errors).length > 0) {
+    const result = checkoutFormSchema.safeParse(readForm());
+
+    if (!result.success) {
+      setFieldErrors(formatCheckoutFieldErrors(result.error));
       return;
     }
 
+    setFieldErrors({});
     setError(null);
     setIsSubmitting(true);
 
@@ -71,12 +123,16 @@ export default function CheckoutPage() {
             productId: item.productId,
             quantity: item.quantity,
           })),
+          checkout: result.data,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || typeof data.url !== "string") {
+        if (data.fields) {
+          setFieldErrors(data.fields);
+        }
         setError(data.error ?? "Impossible de démarrer le paiement.");
         setIsSubmitting(false);
         return;
@@ -105,78 +161,214 @@ export default function CheckoutPage() {
         </div>
       ) : (
         <div className="mx-auto flex max-w-2xl flex-col gap-10 px-6 py-16">
-          {/*
-            Champs non exploités pour l'instant : aucune commande n'est stockée en base
-            (hors périmètre chantier E). Conservés tels quels selon le WIREFRAME.
-          */}
+          <div className="border border-accent/30 bg-section px-4 py-3">
+            <p className="font-sans text-sm text-foreground/80">
+              Projet démo : saisissez des informations fictives, rien n&apos;est
+              conservé.
+            </p>
+          </div>
+
           <form
             ref={formRef}
             onSubmit={(event) => event.preventDefault()}
             noValidate
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-8"
           >
-            <div className="flex flex-col gap-1">
-              <label htmlFor="nom" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-                Nom
-                <input
-                  id="nom"
-                  name="nom"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  aria-invalid={Boolean(fieldErrors.nom)}
-                  aria-describedby={fieldErrors.nom ? "nom-error" : undefined}
-                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
-                />
-              </label>
-              {fieldErrors.nom ? (
-                <p id="nom-error" className="font-sans text-sm text-secondary">
-                  {fieldErrors.nom}
-                </p>
-              ) : null}
-            </div>
+            <fieldset className="flex flex-col gap-4">
+              <legend className="font-serif text-lg text-foreground">
+                Livraison
+              </legend>
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="email" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-                Email
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  aria-invalid={Boolean(fieldErrors.email)}
-                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
-                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
-                />
-              </label>
-              {fieldErrors.email ? (
-                <p id="email-error" className="font-sans text-sm text-secondary">
-                  {fieldErrors.email}
-                </p>
-              ) : null}
-            </div>
+              <FormField
+                id="prenom"
+                label="Prénom"
+                autoComplete="given-name"
+                required
+                maxLength={50}
+                error={fieldErrors.prenom}
+              />
+              <FormField
+                id="nom"
+                label="Nom"
+                autoComplete="family-name"
+                required
+                maxLength={50}
+                error={fieldErrors.nom}
+              />
+              <FormField
+                id="email"
+                label="Email"
+                type="email"
+                autoComplete="email"
+                required
+                error={fieldErrors.email}
+              />
+              <FormField
+                id="societe"
+                label="Société (facultatif)"
+                autoComplete="organization"
+                maxLength={100}
+                error={fieldErrors.societe}
+              />
+              <FormField
+                id="telephone"
+                label="Téléphone (facultatif)"
+                type="tel"
+                autoComplete="tel"
+                error={fieldErrors.telephone}
+                hint="Utilisé par le transporteur en cas d'absence."
+              />
+              <FormField
+                id="adresse"
+                label="Adresse"
+                autoComplete="street-address"
+                required
+                maxLength={100}
+                error={fieldErrors.adresse}
+              />
+              <FormField
+                id="complement"
+                label="Complément d'adresse (facultatif)"
+                autoComplete="address-line2"
+                maxLength={100}
+                error={fieldErrors.complement}
+              />
+              <FormField
+                id="codePostal"
+                label="Code postal"
+                autoComplete="postal-code"
+                required
+                maxLength={5}
+                error={fieldErrors.codePostal}
+              />
+              <FormField
+                id="ville"
+                label="Ville"
+                autoComplete="address-level2"
+                required
+                maxLength={50}
+                error={fieldErrors.ville}
+              />
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="adresse" className="flex flex-col gap-1 font-sans text-sm text-foreground">
-                Adresse
-                <input
-                  id="adresse"
-                  name="adresse"
-                  type="text"
+              <div className="flex flex-col gap-1">
+                <label htmlFor="pays" className="flex flex-col gap-1 font-sans text-sm text-foreground">
+                  Pays
+                  <input
+                    id="pays"
+                    type="text"
+                    value="France"
+                    disabled
+                    className="border border-accent/40 bg-section px-3 py-2 font-sans text-foreground/70"
+                  />
+                </label>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="instructions"
+                  className="flex flex-col gap-1 font-sans text-sm text-foreground"
+                >
+                  Instructions de livraison (facultatif)
+                  <textarea
+                    id="instructions"
+                    name="instructions"
+                    maxLength={200}
+                    rows={3}
+                    aria-invalid={Boolean(fieldErrors.instructions)}
+                    aria-describedby={
+                      fieldErrors.instructions ? "instructions-error" : undefined
+                    }
+                    className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+                  />
+                </label>
+                {fieldErrors.instructions ? (
+                  <p id="instructions-error" className="font-sans text-sm text-secondary">
+                    {fieldErrors.instructions}
+                  </p>
+                ) : null}
+              </div>
+            </fieldset>
+
+            <label className="flex items-center gap-2 font-sans text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={facturationIdentique}
+                onChange={(event) => setFacturationIdentique(event.target.checked)}
+              />
+              Adresse de facturation identique à la livraison
+            </label>
+
+            {!facturationIdentique ? (
+              <fieldset className="flex flex-col gap-4">
+                <legend className="font-serif text-lg text-foreground">
+                  Facturation
+                </legend>
+
+                <FormField
+                  id="facturationPrenom"
+                  label="Prénom"
+                  autoComplete="given-name"
+                  required
+                  maxLength={50}
+                  error={fieldErrors.facturationPrenom}
+                />
+                <FormField
+                  id="facturationNom"
+                  label="Nom"
+                  autoComplete="family-name"
+                  required
+                  maxLength={50}
+                  error={fieldErrors.facturationNom}
+                />
+                <FormField
+                  id="facturationAdresse"
+                  label="Adresse"
                   autoComplete="street-address"
                   required
-                  aria-invalid={Boolean(fieldErrors.adresse)}
-                  aria-describedby={fieldErrors.adresse ? "adresse-error" : undefined}
-                  className="border border-accent/40 bg-background px-3 py-2 font-sans text-foreground"
+                  maxLength={100}
+                  error={fieldErrors.facturationAdresse}
                 />
-              </label>
-              {fieldErrors.adresse ? (
-                <p id="adresse-error" className="font-sans text-sm text-secondary">
-                  {fieldErrors.adresse}
-                </p>
-              ) : null}
-            </div>
+                <FormField
+                  id="facturationComplement"
+                  label="Complément d'adresse (facultatif)"
+                  autoComplete="address-line2"
+                  maxLength={100}
+                  error={fieldErrors.facturationComplement}
+                />
+                <FormField
+                  id="facturationCodePostal"
+                  label="Code postal"
+                  autoComplete="postal-code"
+                  required
+                  maxLength={5}
+                  error={fieldErrors.facturationCodePostal}
+                />
+                <FormField
+                  id="facturationVille"
+                  label="Ville"
+                  autoComplete="address-level2"
+                  required
+                  maxLength={50}
+                  error={fieldErrors.facturationVille}
+                />
+
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="pays-facturation"
+                    className="flex flex-col gap-1 font-sans text-sm text-foreground"
+                  >
+                    Pays
+                    <input
+                      id="pays-facturation"
+                      type="text"
+                      value="France"
+                      disabled
+                      className="border border-accent/40 bg-section px-3 py-2 font-sans text-foreground/70"
+                    />
+                  </label>
+                </div>
+              </fieldset>
+            ) : null}
           </form>
 
           <section aria-label="Récapitulatif de commande" className="bg-section px-6 py-8">
