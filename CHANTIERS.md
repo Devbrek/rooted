@@ -4,6 +4,20 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ## Ouverts
 
+### AA — Pages légales
+
+- Page `/mentions-legales` : contenu réel (éditeur, hébergeur Vercel, contact), fourni par Ben avant intégration — STOP TEXTES obligatoire, ne rien inventer. Rappel que la boutique, les produits, les avis et les boutiques sont fictifs et qu'aucune vente n'a lieu.
+- Page `/confidentialite` : courte et exacte — aucune donnée personnelle collectée ni conservée, aucun traceur, aucune mesure d'audience ; le panier et les favoris restent dans le navigateur (localStorage) ; le paiement passe par Stripe en mode test, sans débit réel. Vérifier chaque affirmation dans le code avant de l'écrire et signaler toute divergence au lieu de l'écrire.
+- Page `/cgv` : conditions générales et politique de retour FICTIVES, mention « conditions fictives » visible en haut de page, texte réutilisable par l'agent du chantier F (délai de rétractation, procédure de retour, remboursement), sans référence à une loi précise ni à une entreprise réelle. Proposées dans le chat avant intégration (STOP TEXTES).
+- Liens dans le footer uniquement, pas dans la navbar. Pas de bandeau cookies (aucun traceur : un bandeau serait une fonctionnalité décorative, contraire à la règle cardinale).
+- Critère : les 3 pages accessibles depuis le footer sur les 5 écrans, mention fictive visible sur /cgv, contenu de /confidentialite vérifié ligne à ligne contre le code.
+
+### AB — Adresse de livraison complète (complète le chantier W)
+
+- Champs ajoutés à ceux déjà prévus par W : société (facultatif, 100 caractères max), téléphone (facultatif, format français accepté avec ou sans espaces, mention « utilisé par le transporteur en cas d'absence »), instructions de livraison (facultatif, 200 max). Mêmes règles de validation côté navigateur et côté serveur, même schéma zod partagé, données jamais conservées ni transmises à Stripe.
+- Pas de civilité, pas de date de naissance, pays figé à « France ».
+- Critère : les champs facultatifs vides passent la validation ; un champ facultatif trop long est rejeté en HTTP 400 avec son nom dans « fields » ; aucune valeur saisie ne se retrouve dans la session Stripe ni dans les logs, avec contrôle de l'outil de mesure.
+
 ### F — Agent IA de support
 
 - Agent LangGraph, deux sources : RAG (recherche dans des textes indexés) sur les fiches produit et la politique de retour ; outil en lecture seule pour le statut de commande, qui relit la session Stripe. Décision : pas de table `Order`, Stripe reste la seule source de vérité.
@@ -55,6 +69,11 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - Non-régression : tous les critères de T repassent.
   - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
 - Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
+
+### Z — Lien actif dans la navbar
+
+- Le lien de la page en cours est mis en évidence (fond blanc, texte foncé sur header blanc ; équivalent lisible sur header transparent), avec aria-current="page". Détection par usePathname() : correspondance exacte pour « / », préfixe pour les autres sections (/blog/mon-article met « Blog » en évidence). Desktop et menu mobile.
+- Critère : sur chaque page, un seul lien mis en évidence, le bon ; lisible sur le hero transparent ; testé desktop et mobile.
 
 ## Fermés
 
