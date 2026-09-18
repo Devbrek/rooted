@@ -40,6 +40,16 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+function isActivePath(pathname: string, href: string) {
+  if (href === "/") {
+    return pathname === "/";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+const activePillClasses =
+  "rounded-full border border-accent/50 bg-white px-3 py-1 text-foreground shadow-sm";
+
 export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -151,25 +161,33 @@ export function Header() {
         <div className="hidden items-center gap-8 sm:flex">
           <Link
             href="/"
-            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+            aria-current={isActivePath(pathname, "/") ? "page" : undefined}
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${isActivePath(pathname, "/") ? activePillClasses : linkColorClasses}`}
           >
             Catalogue
           </Link>
           <Link
             href="/blog"
-            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+            aria-current={isActivePath(pathname, "/blog") ? "page" : undefined}
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${isActivePath(pathname, "/blog") ? activePillClasses : linkColorClasses}`}
           >
             Blog
           </Link>
           <Link
             href="/contact"
-            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+            aria-current={
+              isActivePath(pathname, "/contact") ? "page" : undefined
+            }
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${isActivePath(pathname, "/contact") ? activePillClasses : linkColorClasses}`}
           >
             Contact
           </Link>
           <Link
             href="/boutiques"
-            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${linkColorClasses}`}
+            aria-current={
+              isActivePath(pathname, "/boutiques") ? "page" : undefined
+            }
+            className={`text-sm tracking-wide uppercase ${linkTransitionClasses} ${isActivePath(pathname, "/boutiques") ? activePillClasses : linkColorClasses}`}
           >
             Boutiques
           </Link>
@@ -179,14 +197,16 @@ export function Header() {
       <div className="flex flex-1 items-center justify-end gap-4">
         <Link
           href="/favoris"
-          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${linkColorClasses}`}
+          aria-current={isActivePath(pathname, "/favoris") ? "page" : undefined}
+          className={`hidden text-sm tracking-wide uppercase sm:inline ${linkTransitionClasses} ${isActivePath(pathname, "/favoris") ? activePillClasses : linkColorClasses}`}
         >
           Favoris ({favoriteIds.length})
         </Link>
 
         <Link
           href="/panier"
-          className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${linkColorClasses}`}
+          aria-current={isActivePath(pathname, "/panier") ? "page" : undefined}
+          className={`hidden items-center gap-2 text-sm tracking-wide uppercase sm:flex ${linkTransitionClasses} ${isActivePath(pathname, "/panier") ? activePillClasses : linkColorClasses}`}
         >
           <span>Panier ({itemCount})</span>
           {itemCount > 0 ? (
@@ -220,28 +240,36 @@ export function Header() {
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={isActivePath(pathname, "/") ? "page" : undefined}
+            className={`text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/") ? activePillClasses : "text-foreground"}`}
           >
             Catalogue
           </Link>
           <Link
             href="/blog"
             onClick={() => setMenuOpen(false)}
-            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={isActivePath(pathname, "/blog") ? "page" : undefined}
+            className={`text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/blog") ? activePillClasses : "text-foreground"}`}
           >
             Blog
           </Link>
           <Link
             href="/contact"
             onClick={() => setMenuOpen(false)}
-            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={
+              isActivePath(pathname, "/contact") ? "page" : undefined
+            }
+            className={`text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/contact") ? activePillClasses : "text-foreground"}`}
           >
             Contact
           </Link>
           <Link
             href="/boutiques"
             onClick={() => setMenuOpen(false)}
-            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={
+              isActivePath(pathname, "/boutiques") ? "page" : undefined
+            }
+            className={`text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/boutiques") ? activePillClasses : "text-foreground"}`}
           >
             Boutiques
           </Link>
@@ -251,14 +279,20 @@ export function Header() {
           <Link
             href="/favoris"
             onClick={() => setMenuOpen(false)}
-            className="text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={
+              isActivePath(pathname, "/favoris") ? "page" : undefined
+            }
+            className={`text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/favoris") ? activePillClasses : "text-foreground"}`}
           >
             Favoris ({favoriteIds.length})
           </Link>
           <Link
             href="/panier"
             onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-2 text-sm tracking-wide text-foreground uppercase transition-colors hover:text-secondary"
+            aria-current={
+              isActivePath(pathname, "/panier") ? "page" : undefined
+            }
+            className={`flex items-center gap-2 text-sm tracking-wide uppercase transition-colors hover:text-secondary ${isActivePath(pathname, "/panier") ? activePillClasses : "text-foreground"}`}
           >
             <span>Panier ({itemCount})</span>
             {itemCount > 0 ? (
