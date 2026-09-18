@@ -12,12 +12,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Liens dans le footer uniquement, pas dans la navbar. Pas de bandeau cookies (aucun traceur : un bandeau serait une fonctionnalité décorative, contraire à la règle cardinale).
 - Critère : les 3 pages accessibles depuis le footer sur les 5 écrans, mention fictive visible sur /cgv, contenu de /confidentialite vérifié ligne à ligne contre le code.
 
-### AB — Adresse de livraison complète (complète le chantier W)
-
-- Champs ajoutés à ceux déjà prévus par W : société (facultatif, 100 caractères max), téléphone (facultatif, format français accepté avec ou sans espaces, mention « utilisé par le transporteur en cas d'absence »), instructions de livraison (facultatif, 200 max). Mêmes règles de validation côté navigateur et côté serveur, même schéma zod partagé, données jamais conservées ni transmises à Stripe.
-- Pas de civilité, pas de date de naissance, pays figé à « France ».
-- Critère : les champs facultatifs vides passent la validation ; un champ facultatif trop long est rejeté en HTTP 400 avec son nom dans « fields » ; aucune valeur saisie ne se retrouve dans la session Stripe ni dans les logs, avec contrôle de l'outil de mesure.
-
 ### F — Agent IA de support
 
 - Agent LangGraph, deux sources : RAG (recherche dans des textes indexés) sur les fiches produit et la politique de retour ; outil en lecture seule pour le statut de commande, qui relit la session Stripe. Décision : pas de table `Order`, Stripe reste la seule source de vérité.
@@ -51,24 +45,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 - Développer le contenu de la section (structure et texte), dans le ton validé.
 - Critère d'acceptation : section enrichie, textes validés avant intégration, cohérents avec la mention du chantier I.
-
-### W — Formulaire de livraison et de facturation validé
-
-- Dépend de I : la mention « Projet démo : saisissez des informations fictives, rien n'est conservé » doit être affichée au-dessus du formulaire de `/commande`.
-- Dépendance ajoutée, décidée explicitement : `zod`. Un seul schéma partagé entre le navigateur et le serveur. Version installée consignée dans le rapport du chantier.
-- Champs de livraison : prénom (obligatoire, 50 caractères max), nom (obligatoire, 50 max), email (obligatoire, format valide), adresse (obligatoire, 100 max), complément d'adresse (facultatif, 100 max), code postal (obligatoire, exactement 5 chiffres), ville (obligatoire, 50 max), pays affiché « France » non modifiable. Pas de téléphone.
-- Facturation : case « Adresse de facturation identique à la livraison », cochée par défaut. Décochée, elle affiche un second bloc (prénom, nom, adresse, complément, code postal, ville, pays France) soumis aux mêmes règles. Cochée, aucun champ de facturation n'est exigé ni validé.
-- Validation côté navigateur (affichage des erreurs sous chaque champ) et côté serveur dans `/api/checkout`, avant tout appel Stripe. Formulaire invalide : HTTP 400, corps `{"error": "Formulaire invalide.", "fields": {...}}` avec un message en français par champ en erreur.
-- Données jamais conservées : ni base de données, ni transmission à Stripe, ni écriture dans les logs. L'email est redemandé par Stripe (doublon assumé).
-- Mise à jour de l'écran 4 de `WIREFRAME.md` incluse.
-- Critères d'acceptation :
-  - curl : champ obligatoire vide, email invalide, code postal à 4 chiffres, champ dépassant sa longueur maximale, case décochée avec bloc de facturation vide → HTTP 400 avec le champ concerné dans `fields`, 0 session Stripe créée (comptage depuis un horodatage, contrôlé par un test positif qui fait passer le compteur à 1).
-  - curl : formulaire valide, case cochée → HTTP 200 ; formulaire valide, case décochée avec facturation valide → HTTP 200.
-  - Session Stripe créée : aucune des valeurs saisies n'apparaît dans l'objet session relu via l'API.
-  - Logs serveur : 0 occurrence d'une valeur témoin saisie dans le formulaire, avec contrôle de l'outil sur une ligne de log connue.
-  - Non-régression : tous les critères de T repassent.
-  - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
-- Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
 
 ## Fermés
 
@@ -220,3 +196,17 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 - Fonction `isActivePath` (correspondance exacte pour « / », préfixe pour les autres sections) et `aria-current="page"` appliqués à tous les liens du header (Catalogue, Blog, Contact, Boutiques, Favoris, Panier), desktop et menu mobile. Lien actif mis en évidence par une pastille blanche à texte foncé, bordée et légèrement ombrée, lisible aussi bien sur le header blanc que sur le hero transparent.
 - Tests manuels (Ben), desktop et mobile : un seul lien mis en évidence par page (dont `/blog/[slug]` qui met « Blog » en évidence), lisibilité sur le hero transparent et sur le header blanc, menu mobile.
+
+### W et AB — Formulaire de livraison et de facturation validé — fermé le 2026-09-18
+
+- Dépendance ajoutée : `zod@4.6.5`. Schéma unique partagé entre le navigateur et le serveur dans `lib/checkout-form-schema.ts` (union discriminée sur la case « Adresse de facturation identique »).
+- Champs de livraison : prénom, nom, email (obligatoires), société, téléphone (format français avec ou sans espaces, mention « utilisé par le transporteur en cas d'absence »), instructions de livraison (facultatifs, chantier AB), adresse, code postal (5 chiffres), ville (obligatoires), complément d'adresse (facultatif), pays « France » figé.
+- Facturation : case cochée par défaut ; décochée, bloc distinct (prénom, nom, adresse, complément, code postal, ville, pays France) soumis aux mêmes règles.
+- Mention « Projet démo : saisissez des informations fictives, rien n'est conservé » affichée au-dessus du formulaire (dépendance I).
+- Validation côté navigateur (erreurs sous chaque champ) et côté serveur dans `/api/checkout`, avant tout appel Stripe. Formulaire invalide : HTTP 400, `{"error": "Formulaire invalide.", "fields": {...}}`. Données jamais conservées, jamais transmises à Stripe, jamais journalisées.
+- Écran 4 de `WIREFRAME.md` mis à jour.
+- Tests curl : champ obligatoire vide, email invalide, code postal à 4 chiffres, champ facultatif trop long (société), téléphone invalide, bloc de facturation vide → HTTP 400 avec le champ concerné dans `fields`. Formulaire valide (facultatifs vides, facultatifs remplis, téléphone avec/sans espaces et +33, facturation identique ou distincte) → HTTP 200.
+- Vérifié via l'API Stripe : aucune des valeurs saisies (société, téléphone, complément, instructions, nom, email) n'apparaît dans la session Stripe relue. Logs serveur : 0 occurrence des mêmes valeurs témoins.
+- Non-régression : plafond de quantité (11 unités), produit inconnu, panier/checkout manquant → toujours rejetés correctement (critères de T repassés).
+- Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, mention démo visible, bloc de facturation qui apparaît et disparaît avec la case, mention du téléphone visible, redirection vers Stripe uniquement avec un formulaire valide.
+- Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, civilité, date de naissance.
