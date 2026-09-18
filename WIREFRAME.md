@@ -36,10 +36,11 @@ Contrainte transversale : uniquement des photos libres de droit (Unsplash/Pexels
 ## Écran 4 — Checkout
 
 1. Bandeau photo fin en haut, titre "Finaliser la commande" (même gabarit que le panier).
-2. Formulaire minimal : nom, email, adresse.
-3. Récapitulatif de commande en encart beige (articles + total figé).
-4. Emplacement bouton "Payer" → redirection Stripe Checkout (intégration = chantier E).
-5. Pas de logos de paiement ni mentions de sécurité non vérifiables.
+2. Mention "Projet démo : saisissez des informations fictives, rien n'est conservé" au-dessus du formulaire.
+3. Formulaire de livraison : prénom, nom, email, société (facultatif), téléphone (facultatif, mention transporteur), adresse, complément d'adresse (facultatif), code postal, ville, pays "France" figé, instructions de livraison (facultatif). Case "Adresse de facturation identique à la livraison" cochée par défaut ; décochée, affiche un second bloc (mêmes champs sans société/téléphone/instructions).
+4. Récapitulatif de commande en encart beige (articles + total figé).
+5. Emplacement bouton "Payer" → redirection Stripe Checkout (intégration = chantier E).
+6. Pas de logos de paiement ni mentions de sécurité non vérifiables.
 
 ## Écran 5 — Confirmation
 
