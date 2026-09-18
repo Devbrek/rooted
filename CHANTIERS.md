@@ -4,30 +4,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ## Ouverts
 
-### F — Agent IA de support
-
-- Agent LangGraph, deux sources : RAG (recherche dans des textes indexés) sur les fiches produit et la politique de retour ; outil en lecture seule pour le statut de commande, qui relit la session Stripe. Décision : pas de table `Order`, Stripe reste la seule source de vérité.
-- Outil « statut de commande » :
-  - Entrée : identifiant de session uniquement, format vérifié avant tout appel Stripe (préfixe `cs_test_`). Jamais de recherche par email ou par nom.
-  - Sortie en liste blanche : statut de paiement (payée / non payée), articles (nom, quantité), montant total. `customer_details` et tout autre champ de la session exclus.
-  - Aucun statut de livraison : l'agent indique que la démo n'a pas de suivi d'expédition.
-  - Session inconnue → « commande introuvable » ; panne Stripe → message distinct (même logique que `/confirmation`, chantier T).
-  - Aucune écriture ni action sur Stripe (pas de remboursement, pas d'annulation).
-- Critères d'acceptation :
-  - Outil exécuté seul, hors agent : session payée → « payée », articles et montant identiques à la session relue via l'API ; session non payée → « non payée » ; `cs_test_` inexistant → introuvable.
-  - `abc` et un identifiant `cs_live_…` → rejetés, 0 appel Stripe, avec contrôle positif (un identifiant valide produit bien 1 appel).
-  - Confidentialité : session payée avec un email témoin saisi sur Stripe → 0 occurrence de cet email dans la sortie de l'outil, avec contrôle de l'outil de mesure (l'email témoin est présent dans la session relue directement via l'API).
-  - Panne Stripe (clé surchargée au lancement, `.env` inchangé) → message distinct de « commande introuvable ».
-  - Agent, test manuel (Ben) : 3 questions types (statut avec un identifiant de session payée, caractéristique d'un produit, politique de retour) → réponses correctes, sans information inventée.
-- Prérequis : texte de politique de retour fictive, écrit et validé avant indexation, couvert par la mention du chantier I.
-- Limites connues (pour H) : l'identifiant de session sert de preuve d'accès (lien au porteur, cf. `AUDIT-J.md`) ; pas de statut de livraison.
-- Hors périmètre (signalé) : dépendances de l'agent (LangGraph, fournisseur de modèle, stockage de l'index RAG) à décider explicitement à l'ouverture de F ; garde-fous généraux (chantier G).
-
-### G — Garde-fous de l'agent
-
-- Comportement défini pour : information non trouvée, demande de remboursement, question hors périmètre.
-- Critère d'acceptation : les 3 cas limites testés produisent le comportement attendu (pas d'invention, pas de décision autonome sur remboursement).
-
 ### H — Documentation et intégration portfolio
 
 - Page dédiée sur devbrek.fr : schéma du flux agent, vidéo de démo, section limites connues.
@@ -211,3 +187,10 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Liens ajoutés dans le footer uniquement (Mentions légales, Confidentialité, CGV), pas dans la navbar. Pas de bandeau cookies.
 - Tests : build + curl sur les 3 routes (HTTP 200), présence des 3 liens dans le footer de l'accueil, mention fictive présente sur `/cgv`.
 - Test manuel (Ben), desktop et mobile, sur les 5 écrans : accès aux 3 pages depuis le footer, lecture des textes.
+
+### F et G — Agent IA de support et garde-fous — abandonnés le 2026-09-18
+
+- Décision de Ben : l'agent IA est déjà démontré par les projets Arthur et Emile (devbrek.fr). Un second agent sur ce projet ferait doublon pour un coût d'appels au modèle récurrent, sans preuve nouvelle.
+- Rooted reste la démonstration du tunnel d'achat et de l'audit de sécurité (chantiers E, J, T).
+- Conséquence : la décision sur le stockage des commandes (table `Order` ou lecture Stripe) devient sans objet, aucun statut de commande n'étant exposé à un agent. Les CGV fictives du chantier AA restent utiles au contenu du site.
+- Le chantier H (page portfolio) ne présentera aucune fonctionnalité d'agent pour ce projet.
