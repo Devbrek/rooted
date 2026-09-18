@@ -4,14 +4,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 
 ## Ouverts
 
-### AA — Pages légales
-
-- Page `/mentions-legales` : contenu réel (éditeur, hébergeur Vercel, contact), fourni par Ben avant intégration — STOP TEXTES obligatoire, ne rien inventer. Rappel que la boutique, les produits, les avis et les boutiques sont fictifs et qu'aucune vente n'a lieu.
-- Page `/confidentialite` : courte et exacte — aucune donnée personnelle collectée ni conservée, aucun traceur, aucune mesure d'audience ; le panier et les favoris restent dans le navigateur (localStorage) ; le paiement passe par Stripe en mode test, sans débit réel. Vérifier chaque affirmation dans le code avant de l'écrire et signaler toute divergence au lieu de l'écrire.
-- Page `/cgv` : conditions générales et politique de retour FICTIVES, mention « conditions fictives » visible en haut de page, texte réutilisable par l'agent du chantier F (délai de rétractation, procédure de retour, remboursement), sans référence à une loi précise ni à une entreprise réelle. Proposées dans le chat avant intégration (STOP TEXTES).
-- Liens dans le footer uniquement, pas dans la navbar. Pas de bandeau cookies (aucun traceur : un bandeau serait une fonctionnalité décorative, contraire à la règle cardinale).
-- Critère : les 3 pages accessibles depuis le footer sur les 5 écrans, mention fictive visible sur /cgv, contenu de /confidentialite vérifié ligne à ligne contre le code.
-
 ### F — Agent IA de support
 
 - Agent LangGraph, deux sources : RAG (recherche dans des textes indexés) sur les fiches produit et la politique de retour ; outil en lecture seule pour le statut de commande, qui relit la session Stripe. Décision : pas de table `Order`, Stripe reste la seule source de vérité.
@@ -210,3 +202,12 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Non-régression : plafond de quantité (11 unités), produit inconnu, panier/checkout manquant → toujours rejetés correctement (critères de T repassés).
 - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, mention démo visible, bloc de facturation qui apparaît et disparaît avec la case, mention du téléphone visible, redirection vers Stripe uniquement avec un formulaire valide.
 - Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, civilité, date de naissance.
+
+### AA — Pages légales — fermé le 2026-09-18
+
+- Pages `/mentions-legales`, `/confidentialite` et `/cgv` créées avec le texte réel fourni par Ben (STOP TEXTES respecté, rien inventé). Adresse email affichée en clair sous forme obfusquée `contact[at]devbrek.fr` (sans lien `mailto:`), sur les 3 pages.
+- Contenu de `/confidentialite` vérifié ligne à ligne contre le code avant intégration : aucun traceur/analytics/cookie dans la base de code (grep), aucune table `Order`, formulaire de contact et newsletter n'envoient rien (chantier N), formulaire de commande jamais conservé/transmis/journalisé (chantier W et AB) — aucune divergence trouvée.
+- Mention « Conditions fictives. » visible en haut de `/cgv`, en plus du bandeau du chantier I.
+- Liens ajoutés dans le footer uniquement (Mentions légales, Confidentialité, CGV), pas dans la navbar. Pas de bandeau cookies.
+- Tests : build + curl sur les 3 routes (HTTP 200), présence des 3 liens dans le footer de l'accueil, mention fictive présente sur `/cgv`.
+- Test manuel (Ben), desktop et mobile, sur les 5 écrans : accès aux 3 pages depuis le footer, lecture des textes.
