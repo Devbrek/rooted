@@ -70,11 +70,6 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
   - Test manuel (Ben), desktop et mobile : erreurs affichées sous les champs, bloc de facturation qui apparaît et disparaît avec la case, mention de I visible, redirection vers Stripe uniquement avec un formulaire valide.
 - Hors périmètre (signalé) : stockage des informations client (lié à la décision sur la table `Order`), livraison hors France, téléphone.
 
-### Z — Lien actif dans la navbar
-
-- Le lien de la page en cours est mis en évidence (fond blanc, texte foncé sur header blanc ; équivalent lisible sur header transparent), avec aria-current="page". Détection par usePathname() : correspondance exacte pour « / », préfixe pour les autres sections (/blog/mon-article met « Blog » en évidence). Desktop et menu mobile.
-- Critère : sur chaque page, un seul lien mis en évidence, le bon ; lisible sur le hero transparent ; testé desktop et mobile.
-
 ## Fermés
 
 ### A — Définir le produit — fermé le 2026-09-15
@@ -220,3 +215,8 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Signalé : le fond de carte OpenStreetMap standard (`tile.openstreetmap.org`) est soumis à une politique d'usage stricte (attribution obligatoire, volumétrie limitée, User-Agent identifié) qui déconseille son usage direct pour un site public à trafic réel ; à remplacer par un fournisseur de tuiles géré (MapTiler, Mapbox, Stadia…) ou un hébergement de tuiles propre avant mise en production réelle.
 - Retouches sans lien direct avec ce chantier, demandées par Ben : clic sur le logo du header ramène en haut du hero même si la page est déjà l'accueil (un lien vers l'URL déjà active ne relance pas de navigation) ; champ de quantité du panier corrigé sur mobile (un état de saisie local remplace la liaison directe à la valeur clampée, qui empêchait de vider le champ) avec ajout de boutons − / + ; champs nom, email et adresse rendus obligatoires sur `/commande` avec validation avant l'appel Stripe (le bouton « Payer » n'étant pas un submit de formulaire).
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : carte affichée, marqueurs et popups avec contact, attribution visible, header au-dessus de la carte au défilement, menu mobile au-dessus de la carte.
+
+### Z — Lien actif dans la navbar — fermé le 2026-09-18
+
+- Fonction `isActivePath` (correspondance exacte pour « / », préfixe pour les autres sections) et `aria-current="page"` appliqués à tous les liens du header (Catalogue, Blog, Contact, Boutiques, Favoris, Panier), desktop et menu mobile. Lien actif mis en évidence par une pastille blanche à texte foncé, bordée et légèrement ombrée, lisible aussi bien sur le header blanc que sur le hero transparent.
+- Tests manuels (Ben), desktop et mobile : un seul lien mis en évidence par page (dont `/blog/[slug]` qui met « Blog » en évidence), lisibilité sur le hero transparent et sur le header blanc, menu mobile.
