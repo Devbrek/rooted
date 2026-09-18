@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+import { checkoutFormSchema, formatCheckoutFieldErrors } from "@/lib/checkout-form-schema";
 
 const MAX_QUANTITY_PER_PRODUCT = 10;
 
@@ -11,8 +12,13 @@ type CheckoutRequestItem = {
 
 function isValidRequestBody(
   body: unknown
-): body is { items: CheckoutRequestItem[] } {
-  if (typeof body !== "object" || body === null || !("items" in body)) {
+): body is { items: CheckoutRequestItem[]; checkout: unknown } {
+  if (
+    typeof body !== "object" ||
+    body === null ||
+    !("items" in body) ||
+    !("checkout" in body)
+  ) {
     return false;
   }
   const { items } = body as { items: unknown };
@@ -40,7 +46,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { items } = body;
+  const { items, checkout } = body;
+
+  // Les coordonnées de livraison/facturation ne servent qu'à cette validation :
+  // jamais conservées, jamais transmises à Stripe, jamais journalisées.
+  const checkoutResult = checkoutFormSchema.safeParse(checkout);
+  if (!checkoutResult.success) {
+    return NextResponse.json(
+      {
+        error: "Formulaire invalide.",
+        fields: formatCheckoutFieldErrors(checkoutResult.error),
+      },
+      { status: 400 }
+    );
+  }
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((item) => item.productId) } },
