@@ -113,6 +113,15 @@ Suivi des chantiers, ordre alphabétique. Chantier fermé = déplacé dans la se
 - Vérification : `grep` sur `app/contact/page.tsx` et `components/header.tsx` montrant 0 occurrence de `fetch(`, `localStorage` et `console.log`, avec contrôle positif sur `handleContactSubmit`.
 - Tests manuels (Ben), desktop et mobile, sur `pnpm build` + `pnpm start` : erreurs de validation affichées, message de démonstration après envoi valide, onglet Network vide lors de l'envoi, lien du header fonctionnel.
 
+### X — Optimisation des photos — fermé le 2026-09-21
+
+- Mesure initiale : 9 photos JPEG dans `public/`, 35 419 Ko au total, jusqu'à 5304 × 7952 px. Toutes affichées via `next/image` (0 balise `<img>`, 0 image en CSS). `confirmation.jpg` (6 689 Ko) référencée dans aucun fichier du projet (contrôle positif sur `bougie-sous-bois.jpg`).
+- Outil : `sharp-cli` 6.1.0 via `pnpm dlx` (aucune dépendance ajoutée à `package.json`). Réglages : plus grand côté ≤ 2560 px (`--fit inside --withoutEnlargement`), `--autoOrient`, `--mozjpeg`, qualité 80. Essai à blanc sur un fichier, puis traitement dans un dossier hors du dépôt avant remplacement.
+- Résultat : 8 photos de 28 730 Ko à 2 674 Ko (−90,7 %), dimensions et ratios vérifiés, `confirmation.jpg` supprimée. Contrôle visuel des paires avant/après (orientation, dégradés, couleurs, netteté), puis sur `pnpm build` + `pnpm start` et en production Vercel.
+- Un fichier par commit (8 photos + 1 suppression).
+- Sorties de périmètre : chargement mesuré quasi instantané en local et en production, donc `placeholder="blur"` et état de chargement jugés sans objet à ce stade. Photo pleine largeur de l'écran 5 (`WIREFRAME.md`) non branchée sur `/confirmation`. Les anciennes photos restent dans l'historique Git (réécriture de l'historique non traitée).
+- Limite : le test en production n'a pas été fait en connexion ralentie.
+
 ### Y — Blog factice — fermé le 2026-09-17
 
 - Données dans `lib/blog-posts.ts` (pas de base, pas de CMS, pas de dépendance) : 3 articles fictifs sur l'univers Rooted (ambiance, entretien des matières, rituels apaisants), textes validés par Ben avant intégration, chacun avec une photo déjà présente dans `public/` (`tirage-brume-matin.jpg`, `plaid-refuge.jpg`, `bougie-sous-bois.jpg`).
